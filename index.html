@@ -1,0 +1,3230 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="日序 · 一个安静、清爽的日程与任务管理工具。数据仅保存在本地浏览器。">
+<meta name="theme-color" id="metaTheme" content="#f6f4ef">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="日序">
+<title>日序 · 日程与任务</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23546b5c'/%3E%3Ccircle cx='32' cy='27' r='10' fill='%23f6f4ef'/%3E%3Cpath d='M18 45h28' stroke='%23f6f4ef' stroke-width='4' stroke-linecap='round' opacity='.7'/%3E%3C/svg%3E">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('rishi.theme');
+    var theme = saved === 'dark' || saved === 'light'
+      ? saved
+      : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.dataset.theme = theme;
+  } catch (e) {
+    document.documentElement.dataset.theme = 'light';
+  }
+})();
+</script>
+<style>
+  :root{
+    --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+    --font-serif:"Iowan Old Style","Palatino Linotype","Book Antiqua",Georgia,"Times New Roman",serif;
+    --bg:#f6f4ef;
+    --bg-blur:rgba(246,244,239,.88);
+    --surface:#fffefb;
+    --surface-soft:#faf8f3;
+    --surface-raised:#ffffff;
+    --surface-hover:#f4f1ea;
+    --ink:#252821;
+    --ink-2:#64695f;
+    --ink-3:#81877c;
+    --line:#e8e4da;
+    --line-soft:#f0ede6;
+    --line-strong:#d7d1c4;
+    --accent:#546b5c;
+    --accent-hover:#43594a;
+    --accent-soft:#e9efe9;
+    --accent-soft-2:#f3f6f2;
+    --accent-ink:#43594a;
+    --accent-contrast:#ffffff;
+    --danger:#b85b4f;
+    --danger-hover:#9f473c;
+    --danger-soft:#fbeeeb;
+    --danger-line:#edc9c2;
+    --danger-ink:#9f473c;
+    --high:#b85b4f;
+    --high-soft:#faece9;
+    --medium:#a5783f;
+    --medium-soft:#f8f0e2;
+    --low:#708078;
+    --low-soft:#edf1ee;
+    --glow-a:rgba(120,149,131,.12);
+    --glow-b:rgba(204,172,130,.10);
+    --shadow-xs:0 1px 2px rgba(35,39,31,.04);
+    --shadow-sm:0 2px 10px rgba(35,39,31,.045);
+    --shadow-md:0 10px 30px rgba(35,39,31,.075);
+    --shadow-lg:0 24px 70px rgba(26,30,24,.18);
+    --ring:0 0 0 3px rgba(84,107,92,.13);
+    --page-width:1240px;
+    color-scheme:light;
+  }
+  [data-theme="dark"]{
+    --bg:#121512;
+    --bg-blur:rgba(18,21,18,.88);
+    --surface:#191d19;
+    --surface-soft:#1d211c;
+    --surface-raised:#20251f;
+    --surface-hover:#252b24;
+    --ink:#eef0e9;
+    --ink-2:#a8afa3;
+    --ink-3:#929a8e;
+    --line:#2b312a;
+    --line-soft:#242a23;
+    --line-strong:#3a4238;
+    --accent:#a9c4b4;
+    --accent-hover:#bfd7c8;
+    --accent-soft:#243028;
+    --accent-soft-2:#1c261f;
+    --accent-ink:#c3d8ca;
+    --accent-contrast:#172019;
+    --danger:#e29285;
+    --danger-hover:#f0a79b;
+    --danger-soft:#31221f;
+    --danger-line:#55342e;
+    --danger-ink:#efa093;
+    --high:#e29285;
+    --high-soft:#322320;
+    --medium:#d2ad77;
+    --medium-soft:#2f291f;
+    --low:#a6b5ac;
+    --low-soft:#252d27;
+    --glow-a:rgba(108,140,120,.09);
+    --glow-b:rgba(172,141,100,.06);
+    --shadow-xs:0 1px 2px rgba(0,0,0,.18);
+    --shadow-sm:0 2px 10px rgba(0,0,0,.18);
+    --shadow-md:0 12px 34px rgba(0,0,0,.24);
+    --shadow-lg:0 28px 80px rgba(0,0,0,.48);
+    --ring:0 0 0 3px rgba(169,196,180,.15);
+    color-scheme:dark;
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:var(--font-sans);
+    background:var(--bg);
+    color:var(--ink);
+    font-size:14px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    background-image:
+      radial-gradient(900px 460px at 88% -10%,var(--glow-a),transparent 70%),
+      radial-gradient(720px 420px at -8% 2%,var(--glow-b),transparent 72%);
+    background-attachment:fixed;
+  }
+  body.modal-open{overflow:hidden}
+  button,input,textarea,select{font:inherit;color:inherit}
+  button{cursor:pointer;border:0;background:none;padding:0}
+  a{color:inherit}
+  img,svg{display:block}
+  h1,h2,h3,h4,p{margin:0}
+  fieldset{margin:0;padding:0;border:0;min-width:0}
+  [hidden]{display:none!important}
+  ::selection{background:var(--accent-soft);color:var(--accent-ink)}
+  button:focus-visible,a:focus-visible,[role="button"]:focus-visible,summary:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:2px;
+  }
+  .icon{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .icon-sm{width:14px;height:14px}
+  .svg-sprite{position:absolute!important;width:0!important;height:0!important;overflow:hidden!important}
+  .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  .skip-link{position:fixed;left:16px;top:-60px;z-index:200;padding:10px 14px;border-radius:10px;background:var(--accent);color:var(--accent-contrast);font-weight:600;text-decoration:none;transition:top .18s}
+  .skip-link:focus{top:12px}
+
+  /* ---------- 顶栏 ---------- */
+  .site-header{
+    position:sticky;top:0;z-index:50;
+    background:var(--bg-blur);
+    -webkit-backdrop-filter:blur(18px) saturate(140%);
+    backdrop-filter:blur(18px) saturate(140%);
+    border-bottom:1px solid transparent;
+  }
+  .header-inner{
+    width:100%;max-width:var(--page-width);margin:0 auto;
+    padding:16px 28px;
+    display:flex;align-items:center;gap:24px;
+  }
+  .brand{
+    display:inline-flex;align-items:center;gap:10px;text-decoration:none;
+    flex:none;border-radius:12px;
+  }
+  .brand-mark{
+    width:34px;height:34px;border-radius:10px;
+    background:var(--accent);color:var(--accent-contrast);
+    display:grid;place-items:center;
+    box-shadow:0 5px 16px rgba(61,83,68,.18);
+    transition:transform .2s ease,box-shadow .2s ease;
+  }
+  .brand:hover .brand-mark{transform:rotate(-4deg) scale(1.03);box-shadow:0 7px 20px rgba(61,83,68,.24)}
+  .brand-mark svg{width:25px;height:25px}
+  .brand-copy{display:flex;flex-direction:column;line-height:1.05}
+  .brand-copy strong{font-size:17px;font-weight:680;letter-spacing:.09em}
+  .brand-copy small{font-size:8px;font-weight:650;letter-spacing:.19em;color:var(--ink-3);margin-top:4px}
+  .main-nav{
+    display:flex;align-items:center;gap:3px;
+    padding:3px;background:var(--surface-soft);
+    border:1px solid var(--line-soft);border-radius:12px;
+  }
+  .nav-tab{
+    height:34px;padding:0 13px;border-radius:9px;
+    display:inline-flex;align-items:center;gap:6px;
+    color:var(--ink-2);font-size:13px;font-weight:550;
+    transition:background .16s ease,color .16s ease,box-shadow .16s ease;
+  }
+  .nav-tab:hover{color:var(--ink);background:var(--surface-hover)}
+  .nav-tab.active{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-xs)}
+  .nav-tab .icon{width:15px;height:15px;stroke-width:1.65}
+  .nav-badge{
+    min-width:18px;height:18px;padding:0 5px;border-radius:999px;
+    display:inline-flex;align-items:center;justify-content:center;
+    background:var(--accent-soft);color:var(--accent-ink);
+    font-size:10px;font-weight:700;font-variant-numeric:tabular-nums;
+  }
+  .nav-tab.active .nav-badge{background:var(--accent-soft-2)}
+  .header-actions{margin-left:auto;display:flex;align-items:center;gap:8px;flex:none}
+  .icon-btn{
+    width:38px;height:38px;border-radius:11px;
+    display:inline-grid;place-items:center;color:var(--ink-2);
+    transition:background .16s ease,color .16s ease,transform .16s ease;
+  }
+  .icon-btn:hover{background:var(--surface-hover);color:var(--ink)}
+  .icon-btn:active{transform:scale(.96)}
+  .theme-icon-moon{display:none}
+  [data-theme="dark"] .theme-icon-sun{display:none}
+  [data-theme="dark"] .theme-icon-moon{display:block}
+  .btn{
+    min-height:40px;padding:0 16px;border-radius:11px;
+    display:inline-flex;align-items:center;justify-content:center;gap:7px;
+    font-size:13px;font-weight:600;line-height:1;
+    transition:background .16s ease,border-color .16s ease,color .16s ease,box-shadow .16s ease,transform .16s ease;
+    white-space:nowrap;
+  }
+  .btn .icon{width:15px;height:15px;stroke-width:1.8}
+  .btn-primary{background:var(--accent);color:var(--accent-contrast);box-shadow:0 3px 12px rgba(61,83,68,.16)}
+  .btn-primary:hover{background:var(--accent-hover);transform:translateY(-1px);box-shadow:0 6px 18px rgba(61,83,68,.21)}
+  .btn-primary:active{transform:translateY(0);box-shadow:0 2px 7px rgba(61,83,68,.16)}
+  .btn-ghost{border:1px solid var(--line);background:var(--surface);color:var(--ink-2)}
+  .btn-ghost:hover{border-color:var(--line-strong);background:var(--surface-raised);color:var(--ink)}
+  .btn-soft{background:var(--accent-soft);color:var(--accent-ink)}
+  .btn-soft:hover{background:var(--accent-soft-2)}
+  .btn kbd{
+    margin-left:2px;padding:2px 5px;border-radius:5px;
+    background:rgba(255,255,255,.14);color:inherit;opacity:.72;
+    font-family:var(--font-sans);font-size:9px;font-weight:700;
+  }
+  [data-theme="dark"] .btn kbd{background:rgba(0,0,0,.12)}
+  .text-btn{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:5px 6px;border-radius:7px;
+    color:var(--ink-3);font-size:12px;font-weight:550;
+    transition:background .15s,color .15s;
+  }
+  .text-btn:hover{background:var(--surface-hover);color:var(--ink)}
+  .text-btn.danger-text{color:var(--danger)}
+  .text-btn.danger-text:hover{background:var(--danger-soft);color:var(--danger-hover)}
+
+  /* ---------- 页面 ---------- */
+  .page{max-width:var(--page-width);margin:0 auto;padding:26px 28px 54px}
+  .greeting{display:flex;align-items:flex-end;justify-content:space-between;gap:32px;padding:10px 2px 0}
+  .greeting-copy{min-width:0}
+  .date-line{
+    display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+    color:var(--ink-3);font-size:12px;font-weight:550;letter-spacing:.03em;
+  }
+  .date-line .dot{width:3px;height:3px;border-radius:50%;background:var(--line-strong)}
+  .greeting h1{
+    margin-top:10px;
+    font-size:clamp(28px,3.15vw,38px);
+    line-height:1.28;
+    letter-spacing:-.035em;
+    font-weight:650;
+    color:var(--ink);
+    max-width:720px;
+  }
+  .greeting-sub{margin-top:9px;color:var(--ink-2);font-size:13.5px;line-height:1.7;max-width:620px}
+  .greeting-sub strong{color:var(--ink);font-weight:650}
+  .completion{
+    flex:none;display:flex;align-items:center;gap:13px;
+    padding-bottom:4px;
+  }
+  .progress-ring{
+    --value:0;
+    width:76px;height:76px;border-radius:50%;flex:none;
+    display:grid;place-items:center;
+    background:conic-gradient(var(--accent) calc(var(--value) * 1%),var(--line) 0);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.35);
+    transition:background .4s ease;
+  }
+  .progress-inner{
+    width:62px;height:62px;border-radius:50%;
+    background:var(--bg);
+    display:flex;align-items:center;justify-content:center;gap:1px;
+    box-shadow:var(--shadow-xs);
+  }
+  .progress-inner b{font-family:var(--font-serif);font-size:22px;font-weight:600;letter-spacing:-.04em;line-height:1}
+  .progress-inner em{font-style:normal;font-size:10px;font-weight:600;color:var(--ink-3);line-height:1;margin-top:4px}
+  .completion-copy{display:flex;flex-direction:column;gap:3px}
+  .completion-copy>span{font-size:11px;font-weight:600;color:var(--ink-3);letter-spacing:.05em}
+  .completion-copy p{font-size:12px;color:var(--ink-2);white-space:nowrap}
+
+  /* ---------- 数据卡片 ---------- */
+  .stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-top:25px}
+  .stat-card{
+    position:relative;overflow:hidden;
+    min-width:0;padding:17px 18px 15px;
+    border:1px solid var(--line);border-radius:19px;
+    background:var(--surface);
+    box-shadow:var(--shadow-xs);
+    transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+  }
+  .stat-card:hover{transform:translateY(-2px);border-color:var(--line-strong);box-shadow:var(--shadow-sm)}
+  .stat-card::after{
+    content:"";position:absolute;right:-24px;top:-30px;
+    width:88px;height:88px;border-radius:50%;
+    background:var(--stat-wash,var(--accent-soft));opacity:.46;pointer-events:none;
+  }
+  .stat-card.is-today{--stat-wash:var(--accent-soft);--stat-ink:var(--accent-ink);--stat-icon-bg:var(--accent-soft)}
+  .stat-card.is-overdue{--stat-wash:var(--danger-soft);--stat-ink:var(--danger);--stat-icon-bg:var(--danger-soft)}
+  .stat-card.is-done{--stat-wash:var(--low-soft);--stat-ink:var(--low);--stat-icon-bg:var(--low-soft)}
+  .stat-card.is-upcoming{--stat-wash:var(--medium-soft);--stat-ink:var(--medium);--stat-icon-bg:var(--medium-soft)}
+  .stat-top{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .stat-label{font-size:12px;color:var(--ink-2);font-weight:550}
+  .stat-icon{
+    width:30px;height:30px;border-radius:9px;
+    display:grid;place-items:center;
+    background:var(--stat-icon-bg);color:var(--stat-ink);
+  }
+  .stat-icon .icon{width:15px;height:15px}
+  .stat-value{position:relative;z-index:1;display:flex;align-items:baseline;gap:4px;margin-top:10px}
+  .stat-value strong{
+    font-family:var(--font-serif);
+    font-size:31px;line-height:.95;font-weight:600;letter-spacing:-.04em;
+    font-variant-numeric:tabular-nums;
+  }
+  .stat-value span{font-size:11px;color:var(--ink-3);font-weight:550}
+  .stat-hint{position:relative;z-index:1;margin-top:8px;font-size:11px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .stat-card.is-overdue.has-items .stat-value strong{color:var(--danger)}
+
+  /* ---------- 工作区 ---------- */
+  .workspace{display:grid;grid-template-columns:minmax(0,1fr) 308px;gap:21px;align-items:start;margin-top:21px}
+  .board{
+    min-width:0;padding:23px 23px 24px;
+    border:1px solid var(--line);border-radius:24px;
+    background:var(--surface);
+    box-shadow:var(--shadow-sm);
+  }
+  .board-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+  .board-title-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .board-title-line h2{font-size:19px;font-weight:650;letter-spacing:-.015em}
+  .count-pill{
+    min-width:22px;height:20px;padding:0 7px;border-radius:999px;
+    display:inline-flex;align-items:center;justify-content:center;
+    background:var(--surface-soft);border:1px solid var(--line-soft);
+    color:var(--ink-3);font-size:10.5px;font-weight:650;
+    font-variant-numeric:tabular-nums;
+  }
+  .board-head p{margin-top:5px;font-size:12px;color:var(--ink-3)}
+  .board-head-actions{display:flex;align-items:center;gap:5px;flex:none;padding-top:2px}
+
+  .toolbar{display:flex;align-items:center;gap:8px;margin-top:17px;padding-bottom:15px;border-bottom:1px solid var(--line-soft)}
+  .search-field{position:relative;flex:1 1 210px;min-width:150px}
+  .search-field>svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--ink-3);width:15px;height:15px;pointer-events:none}
+  .search-field input{
+    width:100%;height:39px;padding:0 36px 0 35px;
+    border:1px solid var(--line);border-radius:11px;
+    background:var(--surface-soft);color:var(--ink);
+    font-size:12.5px;outline:none;
+    transition:border-color .16s,background .16s,box-shadow .16s;
+  }
+  .search-field input::placeholder{color:var(--ink-3)}
+  .search-field input::-webkit-search-cancel-button,.search-field input::-webkit-search-decoration{-webkit-appearance:none;appearance:none}
+  .search-field input:hover{border-color:var(--line-strong)}
+  .search-field input:focus{border-color:var(--accent);background:var(--surface);box-shadow:var(--ring)}
+  .search-clear{
+    position:absolute;right:7px;top:50%;transform:translateY(-50%);
+    width:25px;height:25px;border-radius:7px;display:grid;place-items:center;
+    color:var(--ink-3);
+  }
+  .search-clear:hover{background:var(--surface-hover);color:var(--ink)}
+  .search-clear .icon{width:13px;height:13px}
+  .filters-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .select-wrap{position:relative;flex:none}
+  .select-wrap::after{
+    content:"";position:absolute;right:11px;top:14px;
+    width:6px;height:6px;border-right:1.5px solid var(--ink-3);border-bottom:1.5px solid var(--ink-3);
+    transform:rotate(45deg);pointer-events:none;
+  }
+  .filter-select{
+    height:39px;max-width:136px;padding:0 28px 0 10px;
+    border:1px solid var(--line);border-radius:11px;
+    background:var(--surface-soft);color:var(--ink-2);
+    font-size:11.5px;font-weight:550;outline:none;
+    appearance:none;-webkit-appearance:none;cursor:pointer;
+    transition:border-color .16s,color .16s,background .16s,box-shadow .16s;
+  }
+  .filter-select:hover{border-color:var(--line-strong);color:var(--ink)}
+  .filter-select:focus{border-color:var(--accent);background:var(--surface);box-shadow:var(--ring)}
+  .reset-filters{
+    height:39px;padding:0 9px;border-radius:10px;
+    color:var(--ink-3);font-size:11.5px;font-weight:550;
+    display:inline-flex;align-items:center;gap:4px;
+  }
+  .reset-filters:hover{background:var(--surface-hover);color:var(--ink)}
+  .reset-filters .icon{width:12px;height:12px}
+
+  .scope-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:15px}
+  .scope-tabs{display:flex;align-items:center;gap:2px;padding:3px;border:1px solid var(--line-soft);border-radius:11px;background:var(--surface-soft)}
+  .scope-tab{height:31px;padding:0 14px;border-radius:8px;color:var(--ink-2);font-size:12px;font-weight:550;transition:background .15s,color .15s,box-shadow .15s}
+  .scope-tab:hover{color:var(--ink);background:var(--surface-hover)}
+  .scope-tab.active{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-xs)}
+  .scope-note{font-size:11.5px;color:var(--ink-3);white-space:nowrap}
+  .content{margin-top:19px;min-height:180px}
+
+  /* ---------- 任务列表 ---------- */
+  .task-group{margin-top:22px}
+  .task-group:first-child{margin-top:0}
+  .group-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 2px 9px}
+  .group-title{display:flex;align-items:center;gap:7px;min-width:0}
+  .group-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex:none}
+  .group-head.overdue .group-dot{background:var(--danger)}
+  .group-head.later .group-dot{background:var(--ink-3)}
+  .group-title h3{font-size:13px;font-weight:650;letter-spacing:.01em;color:var(--ink)}
+  .group-head.overdue .group-title h3{color:var(--danger)}
+  .group-count{
+    height:18px;min-width:18px;padding:0 5px;border-radius:999px;
+    display:inline-flex;align-items:center;justify-content:center;
+    background:var(--surface-soft);color:var(--ink-3);
+    font-size:10px;font-weight:650;font-variant-numeric:tabular-nums;
+  }
+  .group-head.overdue .group-count{background:var(--danger-soft);color:var(--danger)}
+  .group-date{font-size:11px;color:var(--ink-3);white-space:nowrap}
+
+  .task-list{display:flex;flex-direction:column;gap:8px}
+  .task{
+    display:flex;align-items:flex-start;gap:12px;
+    min-width:0;padding:14px 13px 14px 15px;
+    border:1px solid var(--line);border-radius:16px;
+    background:var(--surface);
+    transition:border-color .17s ease,background .17s ease,box-shadow .17s ease,transform .17s ease;
+  }
+  .task:hover{border-color:var(--line-strong);background:var(--surface-raised);box-shadow:var(--shadow-md);transform:translateY(-1px)}
+  .task.is-overdue{
+    border-color:var(--danger-line);
+    background:linear-gradient(96deg,var(--danger-soft),var(--surface) 62%);
+  }
+  .task.is-overdue:hover{background:linear-gradient(96deg,var(--danger-soft),var(--surface-raised) 70%)}
+  .task.is-completed{background:var(--surface-soft);border-color:var(--line-soft)}
+  .task.is-completed:hover{background:var(--surface);transform:none;box-shadow:var(--shadow-sm)}
+  .task-check{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;margin-top:1px;width:22px;height:22px;cursor:pointer}
+  .task-check input{
+    appearance:none;-webkit-appearance:none;width:19px;height:19px;margin:0;
+    border:1.5px solid var(--line-strong);border-radius:6px;
+    background:var(--surface);cursor:pointer;position:relative;
+    transition:background .16s,border-color .16s,box-shadow .16s;
+  }
+  .task-check input:hover{border-color:var(--accent);box-shadow:var(--ring)}
+  .task-check input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .task-check input:checked{background:var(--accent);border-color:var(--accent)}
+  .task-check input:checked::after{
+    content:"";position:absolute;left:5.4px;top:2.2px;
+    width:4px;height:8px;border-right:1.7px solid var(--accent-contrast);border-bottom:1.7px solid var(--accent-contrast);
+    transform:rotate(42deg);
+  }
+  .task.is-completed .task-check input{border-color:var(--accent);background:var(--accent)}
+  .task-main{flex:1;min-width:0;cursor:pointer;border-radius:5px}
+  .task-title-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .prio{
+    display:inline-flex;align-items:center;gap:4px;flex:none;
+    padding:2px 6px;border-radius:5px;
+    font-size:10px;line-height:1.35;font-weight:650;letter-spacing:.02em;
+  }
+  .prio::before{content:"";width:4px;height:4px;border-radius:50%;background:currentColor;flex:none}
+  .prio.high{background:var(--high-soft);color:var(--high)}
+  .prio.medium{background:var(--medium-soft);color:var(--medium)}
+  .prio.low{background:var(--low-soft);color:var(--low)}
+  .task-title{font-size:14px;line-height:1.55;font-weight:600;color:var(--ink);word-break:break-word;overflow-wrap:anywhere;min-width:0}
+  .task-main:hover .task-title{color:var(--accent-ink)}
+  .overdue-pill{
+    display:inline-flex;align-items:center;gap:4px;
+    padding:2px 6px;border-radius:5px;
+    background:var(--danger-soft);color:var(--danger);
+    font-size:10px;font-weight:650;white-space:nowrap;
+  }
+  .overdue-pill .icon{width:10px;height:10px;stroke-width:2}
+  .task-notes{
+    margin-top:3px;color:var(--ink-2);font-size:12px;line-height:1.55;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+    overflow-wrap:anywhere;
+  }
+  .task-meta{display:flex;align-items:center;gap:6px 11px;flex-wrap:wrap;margin-top:8px;color:var(--ink-3);font-size:11.5px}
+  .meta-item{display:inline-flex;align-items:center;gap:4px;min-width:0}
+  .meta-item .icon{width:12px;height:12px;stroke-width:1.7}
+  .meta-item.due-overdue{color:var(--danger)}
+  .cat-chip{
+    display:inline-flex;align-items:center;gap:4px;
+    padding:2px 7px;border-radius:999px;
+    background:var(--cat-bg);color:var(--cat-ink);
+    font-size:10.5px;font-weight:550;line-height:1.45;
+    max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .cat-chip::before{content:"";width:4px;height:4px;border-radius:50%;background:var(--cat-dot);flex:none}
+  .task-actions{display:flex;align-items:center;gap:1px;flex:none;opacity:0;transform:translateX(4px);transition:opacity .16s,transform .16s}
+  .task:hover .task-actions,.task:focus-within .task-actions{opacity:1;transform:none}
+  .action-btn{
+    width:29px;height:29px;border-radius:8px;display:grid;place-items:center;
+    color:var(--ink-3);transition:background .15s,color .15s;
+  }
+  .action-btn .icon{width:14px;height:14px}
+  .action-btn:hover{background:var(--surface-hover);color:var(--ink)}
+  .action-btn.delete:hover{background:var(--danger-soft);color:var(--danger)}
+  .is-completed .task-title{text-decoration:line-through;color:var(--ink-3);text-decoration-thickness:1px}
+  .is-completed .task-main:hover .task-title{color:var(--ink-2)}
+  .is-completed .prio{opacity:.62}
+  .is-completed .task-meta,.is-completed .task-notes{opacity:.65}
+  .is-completed .task-actions{opacity:.66}
+  .is-completed .task-actions:hover{opacity:1}
+
+  .all-clear{
+    display:flex;align-items:center;gap:10px;
+    padding:13px 15px;margin-bottom:18px;
+    border:1px dashed var(--line-strong);border-radius:14px;
+    color:var(--ink-2);font-size:12px;background:var(--surface-soft);
+  }
+  .all-clear .icon{color:var(--accent);width:17px;height:17px}
+  .all-clear strong{color:var(--ink);font-weight:600}
+  .completed-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:10px;border-top:1px solid var(--line-soft);margin-top:24px;padding-top:15px}
+  .completed-head.no-border{border-top:0;margin-top:0;padding-top:0}
+  .completed-toggle{display:flex;align-items:center;gap:7px;color:var(--ink-2);font-size:12.5px;font-weight:600;padding:3px 4px;border-radius:6px}
+  .completed-toggle:hover{color:var(--ink);background:var(--surface-hover)}
+  .completed-toggle .icon{width:13px;height:13px;transition:transform .18s}
+  .completed-toggle[aria-expanded="false"] .chevron{transform:rotate(-90deg)}
+  .completed-toggle .count-pill{height:18px;font-size:9.5px}
+  .completed-tools{display:flex;align-items:center;gap:4px}
+  .completed-list .task{opacity:.82}
+  .completed-list .task:hover{opacity:1}
+
+  /* ---------- 时间轴日程 ---------- */
+  .focus-note{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:10px 13px;margin-bottom:18px;
+    background:var(--accent-soft);border:1px solid transparent;border-radius:12px;
+    color:var(--accent-ink);font-size:12px;
+  }
+  .focus-note button{font-size:11.5px;font-weight:600;color:var(--accent-ink);padding:3px 6px;border-radius:6px;white-space:nowrap}
+  .focus-note button:hover{background:rgba(84,107,92,.1)}
+  .day-block{margin-bottom:25px}
+  .day-block:last-child{margin-bottom:0}
+  .day-head{display:flex;align-items:center;gap:12px;margin-bottom:11px}
+  .day-badge{
+    width:44px;height:45px;flex:none;border-radius:12px;
+    border:1px solid var(--line);background:var(--surface-soft);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;
+  }
+  .day-badge b{font-family:var(--font-serif);font-size:19px;font-weight:600;letter-spacing:-.03em}
+  .day-badge span{font-size:8.5px;color:var(--ink-3);margin-top:4px}
+  .day-head.today .day-badge{background:var(--accent);border-color:var(--accent);color:var(--accent-contrast)}
+  .day-head.today .day-badge span{color:var(--accent-contrast);opacity:.72}
+  .day-copy{min-width:0}
+  .day-copy h3{font-size:13.5px;font-weight:650;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .day-relative{font-size:10px;font-weight:600;padding:1px 6px;border-radius:999px;background:var(--accent-soft);color:var(--accent-ink)}
+  .day-copy p{font-size:11px;color:var(--ink-3);margin-top:3px}
+  .day-rule{height:1px;background:var(--line-soft);flex:1}
+  .timeline{display:flex;flex-direction:column}
+  .tl-item{display:grid;grid-template-columns:53px 17px minmax(0,1fr);gap:10px;position:relative;padding-bottom:8px}
+  .tl-time{padding-top:13px;text-align:right;font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .tl-time strong{display:block;color:var(--ink);font-size:12px;font-weight:600}
+  .tl-rail{position:relative;display:flex;justify-content:center;padding-top:17px}
+  .tl-rail::before{content:"";position:absolute;top:0;bottom:-8px;left:50%;width:1px;background:var(--line);transform:translateX(-50%)}
+  .tl-item:last-child .tl-rail::before{bottom:auto;height:25px}
+  .tl-dot{position:relative;z-index:1;width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px var(--surface)}
+  .tl-dot.high{background:var(--high)}
+  .tl-dot.medium{background:var(--medium)}
+  .tl-dot.low{background:var(--low)}
+  .tl-dot.is-completed{background:var(--ink-3)}
+  .tl-card{
+    border:1px solid var(--line);border-radius:15px;
+    background:var(--surface-soft);padding:11px 13px;
+    transition:border-color .16s,background .16s,box-shadow .16s;
+  }
+  .tl-card:hover{border-color:var(--line-strong);background:var(--surface-raised);box-shadow:var(--shadow-sm)}
+  .tl-card.is-overdue{border-color:var(--danger-line);background:linear-gradient(96deg,var(--danger-soft),var(--surface-soft) 65%)}
+  .tl-card.is-completed{opacity:.72}
+  .tl-card.is-completed:hover{opacity:1}
+  .tl-card-head{display:flex;align-items:flex-start;gap:8px}
+  .tl-body{flex:1;min-width:0;cursor:pointer}
+  .tl-title-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .tl-title{font-size:13.5px;font-weight:600;line-height:1.5;overflow-wrap:anywhere}
+  .tl-body:hover .tl-title{color:var(--accent-ink)}
+  .tl-card.is-completed .tl-title{text-decoration:line-through;color:var(--ink-3)}
+  .tl-notes{margin-top:2px;font-size:11.5px;color:var(--ink-2);line-height:1.55;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+  .tl-card .task-meta{margin-top:6px;font-size:11px;gap:5px 9px}
+  .tl-card .task-actions{opacity:0}
+  .tl-card:hover .task-actions,.tl-card:focus-within .task-actions{opacity:1}
+  .tl-card .task-check{width:20px;height:20px;margin-top:0}
+  .tl-card .task-check input{width:17px;height:17px;border-radius:5px}
+  .tl-card .task-check input:checked::after{left:4.6px;top:1.7px;width:3px;height:7px}
+
+  /* ---------- 空状态 ---------- */
+  .empty-state{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:46px 20px 48px;
+  }
+  .empty-art{width:148px;height:112px;margin-bottom:15px;position:relative}
+  .empty-art svg{width:100%;height:100%}
+  .empty-state h3{font-size:16px;font-weight:650;letter-spacing:-.01em}
+  .empty-state p{margin-top:6px;font-size:12.5px;line-height:1.7;color:var(--ink-3);max-width:340px}
+  .empty-actions{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:18px}
+  .empty-actions .btn{min-height:37px;font-size:12px;padding:0 14px}
+
+  /* ---------- 侧栏 ---------- */
+  .rail{display:flex;flex-direction:column;gap:15px;position:sticky;top:84px}
+  .panel{
+    border:1px solid var(--line);border-radius:21px;
+    background:var(--surface);box-shadow:var(--shadow-sm);
+    padding:17px;
+  }
+  .mini-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:13px}
+  .mini-month{font-size:13px;font-weight:650;letter-spacing:.01em}
+  .mini-month span{color:var(--ink-3);font-weight:500;margin-left:3px;font-size:11px}
+  .mini-nav{display:flex;align-items:center;gap:0}
+  .mini-nav-btn{width:27px;height:27px;border-radius:7px;display:grid;place-items:center;color:var(--ink-3)}
+  .mini-nav-btn:hover{background:var(--surface-hover);color:var(--ink)}
+  .mini-nav-btn .icon{width:13px;height:13px}
+  .weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px}
+  .weekdays span{font-size:9.5px;font-weight:600;color:var(--ink-3);text-align:center;padding:3px 0}
+  .weekdays span.wknd{color:var(--danger);opacity:.65}
+  .calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+  .cal-day{
+    position:relative;aspect-ratio:1;min-height:29px;border-radius:8px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    font-size:11px;color:var(--ink-2);font-variant-numeric:tabular-nums;
+    transition:background .15s,color .15s,box-shadow .15s;
+  }
+  .cal-day:hover{background:var(--surface-hover);color:var(--ink)}
+  .cal-day.outside{color:var(--ink-3);opacity:.46}
+  .cal-day.wknd:not(.selected){color:var(--ink-2)}
+  .cal-day.today{box-shadow:inset 0 0 0 1px var(--accent);color:var(--accent-ink);font-weight:650}
+  .cal-day.selected{background:var(--accent);color:var(--accent-contrast);box-shadow:none;font-weight:650}
+  .cal-day.selected:hover{background:var(--accent-hover);color:var(--accent-contrast)}
+  .cal-dots{display:flex;align-items:center;justify-content:center;gap:2px;height:4px}
+  .cal-dot{width:3.5px;height:3.5px;border-radius:50%;background:var(--accent);flex:none}
+  .cal-dot.high{background:var(--high)}
+  .cal-dot.medium{background:var(--medium)}
+  .cal-dot.low{background:var(--low)}
+  .cal-day.selected .cal-dot{background:var(--accent-contrast);opacity:.85}
+  .cal-day.outside .cal-dot{opacity:.4}
+  .mini-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px;padding-top:11px;border-top:1px solid var(--line-soft)}
+  .mini-foot span{font-size:10px;color:var(--ink-3)}
+  .mini-foot button{font-size:10.5px;font-weight:600;color:var(--accent-ink);padding:3px 6px;border-radius:6px}
+  .mini-foot button:hover{background:var(--accent-soft)}
+  .panel-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}
+  .panel-heading h3{font-size:12.5px;font-weight:650}
+  .panel-heading span{font-size:10px;color:var(--ink-3)}
+  .category-list{display:flex;flex-direction:column;gap:1px}
+  .category-row{
+    width:100%;display:flex;align-items:center;gap:8px;
+    padding:7px 7px;border-radius:8px;
+    color:var(--ink-2);font-size:11.5px;text-align:left;
+    transition:background .15s,color .15s;
+  }
+  .category-row:hover{background:var(--surface-hover);color:var(--ink)}
+  .category-row.active{background:var(--accent-soft);color:var(--accent-ink);font-weight:600}
+  .cat-dot{width:6px;height:6px;border-radius:50%;background:var(--cat-dot,var(--accent));flex:none}
+  .category-row .cat-name{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .category-row .cat-count{font-size:10px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+  .category-row.active .cat-count{color:var(--accent-ink);opacity:.72}
+  .category-empty{padding:7px;font-size:11px;line-height:1.6;color:var(--ink-3)}
+  .privacy-note{padding:3px 8px 0;text-align:center;color:var(--ink-3);font-size:9.5px;line-height:1.6}
+  .privacy-note .icon{display:inline-block;width:10px;height:10px;vertical-align:-1px;margin-right:2px}
+
+  /* ---------- 分类色调 ---------- */
+  .tone-0{--cat-bg:#edf2ee;--cat-ink:#536a5c;--cat-dot:#7e9b89}
+  .tone-1{--cat-bg:#eef0f5;--cat-ink:#56647a;--cat-dot:#8294b0}
+  .tone-2{--cat-bg:#f7efeb;--cat-ink:#7f5e50;--cat-dot:#be8b74}
+  .tone-3{--cat-bg:#f4f0e8;--cat-ink:#73664e;--cat-dot:#b39c6f}
+  .tone-4{--cat-bg:#f1eef2;--cat-ink:#6c5a70;--cat-dot:#a58aa9}
+  .tone-5{--cat-bg:#edf1f1;--cat-ink:#4f6868;--cat-dot:#7fa1a1}
+  [data-theme="dark"] .tone-0{--cat-bg:#243129;--cat-ink:#b0c9b8;--cat-dot:#7e9b89}
+  [data-theme="dark"] .tone-1{--cat-bg:#232a34;--cat-ink:#b4c2d6;--cat-dot:#8294b0}
+  [data-theme="dark"] .tone-2{--cat-bg:#322721;--cat-ink:#d9b7a8;--cat-dot:#be8b74}
+  [data-theme="dark"] .tone-3{--cat-bg:#2e2a20;--cat-ink:#d2c19b;--cat-dot:#b39c6f}
+  [data-theme="dark"] .tone-4{--cat-bg:#2d2730;--cat-ink:#cbb6ce;--cat-dot:#a58aa9}
+  [data-theme="dark"] .tone-5{--cat-bg:#232d2d;--cat-ink:#b1caca;--cat-dot:#7fa1a1}
+
+  /* ---------- 悬浮新建 ---------- */
+  .fab{
+    display:none;position:fixed;right:17px;bottom:22px;z-index:45;
+    width:53px;height:53px;border-radius:17px;
+    background:var(--accent);color:var(--accent-contrast);
+    box-shadow:0 10px 28px rgba(43,61,48,.28);
+    align-items:center;justify-content:center;
+    transition:transform .18s,background .18s,box-shadow .18s;
+  }
+  .fab:hover{background:var(--accent-hover);transform:translateY(-2px);box-shadow:0 14px 32px rgba(43,61,48,.34)}
+  .fab .icon{width:22px;height:22px;stroke-width:1.9}
+
+  /* ---------- 弹窗与表单 ---------- */
+  .modal{
+    width:min(570px,calc(100vw - 28px));
+    max-width:none;max-height:none;
+    margin:auto;padding:0;border:0;
+    background:transparent;color:var(--ink);
+    overflow:visible;
+  }
+  .modal::backdrop{background:rgba(18,23,18,.38);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+  .modal[open]{animation:modal-fade .18s ease both}
+  .modal-card{
+    max-height:calc(100dvh - 28px);
+    display:flex;flex-direction:column;
+    border:1px solid var(--line);border-radius:23px;
+    background:var(--surface);box-shadow:var(--shadow-lg);
+    overflow:hidden;
+    animation:modal-pop .22s cubic-bezier(.2,.75,.3,1) both;
+  }
+  .modal-card form{display:flex;flex-direction:column;min-height:0}
+  .modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:21px 23px 0;flex:none}
+  .modal-eyebrow{font-size:9px;font-weight:700;letter-spacing:.15em;color:var(--ink-3);margin-bottom:5px;text-transform:uppercase}
+  .modal-head h2{font-size:21px;font-weight:650;letter-spacing:-.02em}
+  .modal-close{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:var(--ink-3);flex:none;margin-top:-3px}
+  .modal-close:hover{background:var(--surface-hover);color:var(--ink)}
+  .modal-body{min-height:0;overflow-y:auto;padding:19px 23px 5px}
+  .modal-foot{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    flex:none;padding:15px 23px 20px;margin-top:13px;
+    border-top:1px solid var(--line-soft);background:var(--surface);
+  }
+  .modal-foot .btn{min-height:38px;font-size:12.5px}
+  .shortcut-note{font-size:10px;color:var(--ink-3)}
+  .field{display:flex;flex-direction:column;gap:7px;margin-bottom:15px;min-width:0}
+  .field label,.field legend{font-size:12px;font-weight:600;color:var(--ink-2);padding:0}
+  .label-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .label-row .optional,.optional{font-size:10px;color:var(--ink-3);font-weight:400}
+  .req{color:var(--danger);margin-left:2px}
+  .field input[type="text"],.field input[type="date"],.field input[type="time"],.field input[type="number"],.field textarea,.field select{
+    width:100%;border:1px solid var(--line);border-radius:10px;
+    background:var(--surface-soft);color:var(--ink);
+    font-size:13px;outline:none;
+    transition:border-color .16s,background .16s,box-shadow .16s;
+  }
+  .field input[type="text"],.field input[type="date"],.field input[type="time"],.field input[type="number"],.field select{height:41px;padding:0 11px}
+  .field textarea{padding:10px 11px;resize:vertical;min-height:74px;line-height:1.55}
+  .field input::placeholder,.field textarea::placeholder{color:var(--ink-3)}
+  .field input:hover,.field textarea:hover,.field select:hover{border-color:var(--line-strong)}
+  .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);background:var(--surface);box-shadow:var(--ring)}
+  .field input.invalid,.field textarea.invalid{border-color:var(--danger);box-shadow:0 0 0 3px rgba(184,91,79,.1)}
+  .field-error{font-size:10.5px;color:var(--danger);line-height:1.4;margin-top:-1px}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .form-row .field{margin-bottom:15px}
+  .priority-field{margin-bottom:15px}
+  .priority-options{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:7px}
+  .priority-option{position:relative;display:flex}
+  .priority-option input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+  .priority-ui{
+    display:flex;align-items:center;justify-content:center;gap:6px;
+    height:39px;width:100%;border:1px solid var(--line);border-radius:10px;
+    background:var(--surface-soft);color:var(--ink-2);
+    font-size:11.5px;font-weight:550;cursor:pointer;
+    transition:background .15s,border-color .15s,color .15s,box-shadow .15s;
+  }
+  .priority-ui::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.72;flex:none}
+  .priority-option:hover .priority-ui{border-color:var(--line-strong);background:var(--surface-hover)}
+  .priority-option input:focus-visible + .priority-ui{outline:2px solid var(--accent);outline-offset:2px}
+  .priority-option input[value="high"]:checked + .priority-ui{background:var(--high-soft);border-color:var(--high);color:var(--high);box-shadow:inset 0 0 0 1px var(--high)}
+  .priority-option input[value="medium"]:checked + .priority-ui{background:var(--medium-soft);border-color:var(--medium);color:var(--medium);box-shadow:inset 0 0 0 1px var(--medium)}
+  .priority-option input[value="low"]:checked + .priority-ui{background:var(--low-soft);border-color:var(--low);color:var(--low);box-shadow:inset 0 0 0 1px var(--low)}
+  .category-quick{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:1px}
+  .cat-quick{
+    padding:3px 8px;border-radius:999px;
+    border:1px solid var(--line);background:transparent;
+    color:var(--ink-3);font-size:10px;line-height:1.55;
+    transition:background .15s,border-color .15s,color .15s;
+  }
+  .cat-quick:hover{border-color:var(--line-strong);color:var(--ink-2)}
+  .cat-quick.active{background:var(--accent-soft);border-color:transparent;color:var(--accent-ink);font-weight:600}
+  .custom-reminder{display:flex;align-items:center;gap:7px;margin-top:1px}
+  .custom-reminder input{max-width:106px}
+  .custom-reminder span{font-size:11px;color:var(--ink-3);white-space:nowrap}
+  .reminder-hint{font-size:10px;color:var(--ink-3);margin-top:1px;line-height:1.4}
+
+  /* ---------- Toast ---------- */
+  .toast-region{
+    position:fixed;right:20px;bottom:20px;z-index:120;
+    width:min(356px,calc(100vw - 32px));
+    display:flex;flex-direction:column;gap:9px;
+    pointer-events:none;
+  }
+  .toast{
+    position:relative;overflow:hidden;pointer-events:auto;
+    display:flex;align-items:flex-start;gap:10px;
+    padding:12px 11px 12px 13px;
+    border:1px solid var(--line);border-radius:14px;
+    background:var(--surface-raised);
+    box-shadow:var(--shadow-lg);
+    animation:toast-in .24s cubic-bezier(.2,.75,.3,1) both;
+  }
+  .toast.leaving{animation:toast-out .18s ease forwards}
+  .toast.reminder{border-color:var(--danger-line);background:linear-gradient(110deg,var(--danger-soft),var(--surface-raised) 72%)}
+  .toast.reminder::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--danger)}
+  .toast-icon{
+    width:29px;height:29px;border-radius:9px;flex:none;
+    display:grid;place-items:center;
+    background:var(--accent-soft);color:var(--accent-ink);
+  }
+  .toast-icon .icon{width:15px;height:15px}
+  .toast.error .toast-icon{background:var(--danger-soft);color:var(--danger)}
+  .toast.reminder .toast-icon{background:var(--danger-soft);color:var(--danger)}
+  .toast.info .toast-icon{background:var(--surface-hover);color:var(--ink-2)}
+  .toast-content{flex:1;min-width:0;padding-top:1px}
+  .toast-title{font-size:12px;font-weight:650;line-height:1.45;color:var(--ink)}
+  .toast-message{margin-top:1px;font-size:11px;line-height:1.5;color:var(--ink-2);overflow-wrap:anywhere}
+  .toast-actions{display:flex;align-items:center;gap:2px;flex:none;padding-top:1px}
+  .toast-action{font-size:11px;font-weight:650;color:var(--accent-ink);padding:5px 6px;border-radius:6px;white-space:nowrap}
+  .toast-action:hover{background:var(--accent-soft)}
+  .toast.reminder .toast-action{color:var(--danger)}
+  .toast.reminder .toast-action:hover{background:var(--danger-soft)}
+  .toast-close{width:24px;height:24px;border-radius:6px;display:grid;place-items:center;color:var(--ink-3);flex:none}
+  .toast-close:hover{background:var(--surface-hover);color:var(--ink)}
+  .toast-close .icon{width:12px;height:12px}
+
+  @keyframes modal-fade{from{opacity:0}to{opacity:1}}
+  @keyframes modal-pop{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:none}}
+  @keyframes toast-in{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:none}}
+  @keyframes toast-out{to{opacity:0;transform:translateY(5px) scale(.99)}}
+
+  @media (max-width:1080px){
+    .workspace{grid-template-columns:minmax(0,1fr) 282px;gap:17px}
+    .board{padding:21px}
+  }
+  @media (max-width:960px){
+    .page{padding-left:22px;padding-right:22px}
+    .header-inner{padding-left:22px;padding-right:22px}
+    .workspace{grid-template-columns:minmax(0,1fr)}
+    .rail{position:static;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+    .privacy-note{grid-column:1/-1}
+    .calendar-grid{gap:3px}
+    .cal-day{font-size:12px;min-height:35px}
+    .nav-badge{display:none}
+  }
+  @media (max-width:760px){
+    .site-header{position:static}
+    .header-inner{flex-wrap:wrap;gap:10px;padding:12px 18px 11px}
+    .brand-mark{width:32px;height:32px;border-radius:9px}
+    .brand-copy strong{font-size:16px}
+    .main-nav{order:3;width:100%;justify-content:stretch;background:var(--surface);border-color:var(--line)}
+    .nav-tab{flex:1;justify-content:center;height:32px}
+    .header-actions{margin-left:auto}
+    .btn-new kbd{display:none}
+    .page{padding:18px 16px 44px}
+    .greeting{display:block;padding-top:4px}
+    .greeting h1{font-size:clamp(26px,7vw,34px);margin-top:8px}
+    .greeting-sub{font-size:12.5px}
+    .completion{display:flex;margin-top:14px;padding-bottom:0;gap:11px}
+    .progress-ring{width:60px;height:60px}
+    .progress-inner{width:48px;height:48px}
+    .progress-inner b{font-size:18px}
+    .progress-inner em{font-size:9px;margin-top:3px}
+    .completion-copy p{white-space:normal}
+    .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:20px}
+    .stat-card{padding:14px 15px}
+    .stat-value strong{font-size:27px}
+    .stat-hint{font-size:10px}
+    .workspace{margin-top:16px}
+    .board{padding:18px 15px 19px;border-radius:20px}
+    .board-head h2{font-size:18px}
+    .toolbar{flex-direction:column;align-items:stretch;gap:7px;margin-top:14px}
+    .search-field{flex:1 1 auto;width:100%}
+    .filters-row{width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+    .select-wrap{min-width:0}
+    .filter-select{width:100%;max-width:none;padding-left:8px;padding-right:22px;font-size:10.5px}
+    .select-wrap::after{right:8px}
+    .reset-filters{grid-column:1/-1;justify-self:start;height:26px;padding:0 5px}
+    .scope-bar{flex-wrap:wrap;margin-top:13px}
+    .scope-note{display:none}
+    .content{margin-top:16px}
+    .task{padding:13px 10px 13px 12px;gap:9px;border-radius:14px}
+    .task-actions{opacity:1;transform:none;gap:0}
+    .action-btn{width:27px;height:27px}
+    .task-title{font-size:13.5px}
+    .task-notes{font-size:11.5px}
+    .task-meta{font-size:10.5px;gap:5px 8px}
+    .cat-chip{max-width:105px}
+    .group-date{display:none}
+    .day-head{gap:9px}
+    .tl-item{grid-template-columns:45px 13px minmax(0,1fr);gap:7px}
+    .tl-time strong{font-size:11px}
+    .tl-time{font-size:10px}
+    .tl-card{padding:10px 11px}
+    .tl-card .task-actions{opacity:1}
+    .rail{grid-template-columns:minmax(0,1fr)}
+    .footer-note{grid-column:auto}
+    .completed-head{margin-top:20px}
+    .empty-state{padding:36px 12px 38px}
+    .empty-art{width:132px;height:100px}
+    .modal{width:calc(100vw - 20px)}
+    .modal-body{padding-left:18px;padding-right:18px}
+    .modal-head{padding-left:18px;padding-right:18px}
+    .modal-foot{padding-left:18px;padding-right:18px}
+    .toast-region{right:12px;bottom:84px;width:calc(100vw - 24px)}
+  }
+  @media (max-width:560px){
+    .btn-new{display:none}
+    .fab{display:flex}
+    .header-inner{padding-bottom:10px}
+    .completion{margin-top:12px;gap:10px}
+    .progress-ring{width:56px;height:56px}
+    .progress-inner{width:45px;height:45px}
+    .progress-inner b{font-size:17px}
+    .completion-copy>span{font-size:10px}
+    .completion-copy p{font-size:11px}
+    .date-line{font-size:11px}
+    .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .stat-card::after{width:64px;height:64px;right:-18px;top:-20px}
+    .board{padding:16px 12px 17px}
+    .board-head{align-items:center}
+    .filters-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .filter-select{height:37px}
+    .search-field input{height:38px}
+    .scope-tabs{width:100%;justify-content:stretch}
+    .scope-tab{flex:1;padding:0 8px}
+    .page{padding-bottom:92px}
+    .task-actions{flex-direction:column;justify-content:center}
+    .action-btn{width:26px;height:25px}
+    .task-main{padding-right:1px}
+    .task-title-row{gap:5px}
+    .overdue-pill{font-size:9px;padding:1px 5px}
+    .prio{font-size:9.5px}
+    .empty-actions{flex-direction:column;width:100%}
+    .empty-actions .btn{width:100%}
+    .modal{width:100%;margin:auto 0 0;max-width:100%}
+    .modal-card{border-radius:21px 21px 0 0;max-height:93dvh;border-bottom:0}
+    .modal-head{padding-top:18px}
+    .modal-foot{padding-bottom:16px}
+    .shortcut-note{display:none}
+    .modal-foot .btn{flex:1}
+    .modal-foot>div{display:flex;flex:1;gap:8px}
+    .form-row{grid-template-columns:1fr;gap:0}
+    .priority-options{gap:5px}
+    .toast-region{bottom:86px}
+  }
+  @media (max-width:380px){
+    .greeting h1{font-size:24px;letter-spacing:-.045em}
+    .stat-card{padding-left:13px;padding-right:13px}
+    .board{padding-left:11px;padding-right:11px}
+    .task{padding-left:10px;padding-right:8px}
+  }
+  @media (hover:none){
+    .task-actions,.tl-card .task-actions{opacity:1;transform:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  }
+  @media print{
+    .site-header,.rail,.toolbar,.scope-bar,.board-head-actions,.fab,.toast-region{display:none!important}
+    body{background:#fff;color:#000}
+    .board,.stat-card{border-color:#ddd;box-shadow:none}
+    .workspace{display:block}
+  }
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" class="svg-sprite" aria-hidden="true">
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.1"/><path d="M12 2.5v2.1M12 19.4v2.1M2.5 12h2.1M19.4 12h2.1M5.3 5.3l1.5 1.5M17.2 17.2l1.5 1.5M18.7 5.3l-1.5 1.5M6.8 17.2l-1.5 1.5"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.8 13.2A8.6 8.6 0 1 1 10.8 3.2a6.8 6.8 0 0 0 10 10Z"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16.1 16.1 4.1 4.1"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.2" y="5" width="17.6" height="16" rx="3"/><path d="M7.4 2.8v4.1M16.6 2.8v4.1M3.2 9.4h17.6"/></symbol>
+  <symbol id="i-calendar-check" viewBox="0 0 24 24"><rect x="3.2" y="5" width="17.6" height="16" rx="3"/><path d="M7.4 2.8v4.1M16.6 2.8v4.1M3.2 9.4h17.6M8.6 14.7l2.2 2.2 4.6-4.6"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.7 2.7 17a2 2 0 0 0 1.7 3h15.2a2 2 0 0 0 1.7-3L13.7 3.7a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4.1M12 16.5h.01"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m4.8 12.4 4.7 4.7L19.3 7.3"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12.2 2.7 2.7 5.4-5.4"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.3l3.4 2"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8.6a6 6 0 0 0-12 0c0 6.3-2.5 7.1-2.5 8.4h17C20.5 15.7 18 14.9 18 8.6Z"/><path d="M13.7 20.5a2 2 0 0 1-3.4 0"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.7 3.4a2.1 2.1 0 0 1 3 3L7.1 19 3 20l1-4.1Z"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3.5 6.2h17M8.5 6.2V3.8h7v2.4M18.5 6.2l-1 13.8h-11l-1-13.8M10 10.5v5.4M14 10.5v5.4"/></symbol>
+  <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m14.5 5.5-6.5 6.5 6.5 6.5"/></symbol>
+  <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9.5 5.5 6.5 6.5-6.5 6.5"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m5.5 9.5 6.5 6.5 6.5-6.5"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8.5 6h12M8.5 12h12M8.5 18h12"/><path d="M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></symbol>
+  <symbol id="i-timeline" viewBox="0 0 24 24"><path d="M6 4v16"/><path d="M6 8h5M6 15h9"/><circle cx="15" cy="8" r="2.1"/><circle cx="18.8" cy="15" r="2.1"/></symbol>
+  <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M4 4.5h16l1.5 9.5v3.5a2 2 0 0 1-2 2h-15a2 2 0 0 1-2-2V14Z"/><path d="M2.5 14h5l1.5 2.4h6L16.5 14h5"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20.2 11.3A8.3 8.3 0 1 0 18 18"/><path d="M20.5 5.7v5.6h-5.6"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M4.5 12h15M13.5 6l6 6-6 6"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 2.8 4.5 5.6v5.5c0 5.2 3.2 8.5 7.5 10.1 4.3-1.6 7.5-4.9 7.5-10.1V5.6Z"/><path d="m8.8 11.8 2.2 2.2 4.2-4.2"/></symbol>
+  <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3.2c.6 4.6 2.2 6.2 6.8 6.8-4.6.6-6.2 2.2-6.8 6.8-.6-4.6-2.2-6.2-6.8-6.8 4.6-.6 6.2-2.2 6.8-6.8ZM18.5 16.3c.2 1.8.9 2.5 2.7 2.7-1.8.2-2.5.9-2.7 2.7-.2-1.8-.9-2.5-2.7-2.7 1.8-.2 2.5-.9 2.7-2.7Z"/></symbol>
+</svg>
+
+<a class="skip-link" href="#main">跳到主要内容</a>
+
+<header class="site-header" id="siteHeader">
+  <div class="header-inner">
+    <a class="brand" href="#main" aria-label="日序首页" data-action="go-home">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="13" r="5.2" fill="currentColor"/><path d="M8.5 23h15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" opacity=".65"/></svg>
+      </span>
+      <span class="brand-copy"><strong>日序</strong><small>DAYORDER</small></span>
+    </a>
+    <nav class="main-nav" aria-label="主导航">
+      <button type="button" class="nav-tab active" data-view="tasks" aria-current="page">
+        <svg class="icon" aria-hidden="true"><use href="#i-list"></use></svg>
+        <span>任务</span>
+        <span class="nav-badge" id="navTaskCount">0</span>
+      </button>
+      <button type="button" class="nav-tab" data-view="schedule">
+        <svg class="icon" aria-hidden="true"><use href="#i-timeline"></use></svg>
+        <span>日程</span>
+      </button>
+    </nav>
+    <div class="header-actions">
+      <button type="button" class="icon-btn" id="themeToggle" aria-label="切换到深色主题" title="切换主题">
+        <svg class="icon theme-icon-sun" aria-hidden="true"><use href="#i-sun"></use></svg>
+        <svg class="icon theme-icon-moon" aria-hidden="true"><use href="#i-moon"></use></svg>
+      </button>
+      <button type="button" class="btn btn-primary btn-new" id="openCreateBtn" data-action="new-task">
+        <svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg>
+        <span>新建任务</span>
+        <kbd>N</kbd>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="page" id="main">
+  <section class="greeting" aria-labelledby="greetingText">
+    <div class="greeting-copy">
+      <p class="date-line">
+        <span id="dateLine">10月25日 · 星期六</span>
+        <span class="dot" aria-hidden="true"></span>
+        <span id="weekLine">第 43 周</span>
+      </p>
+      <h1 id="greetingText">下午好，今天也从容一点。</h1>
+      <p class="greeting-sub" id="greetingSub">从写下第一件小事开始，慢慢建立自己的节奏。</p>
+    </div>
+    <div class="completion" aria-label="任务完成率">
+      <div class="progress-ring" id="progressRing" style="--value:0">
+        <div class="progress-inner"><b id="completionRate">0</b><em>%</em></div>
+      </div>
+      <div class="completion-copy">
+        <span>完成率</span>
+        <p id="completionCaption">还没有任务</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats-grid" aria-label="任务概览">
+    <article class="stat-card is-today">
+      <div class="stat-top">
+        <span class="stat-label">今日待办</span>
+        <span class="stat-icon" aria-hidden="true"><svg class="icon"><use href="#i-calendar-check"></use></svg></span>
+      </div>
+      <div class="stat-value"><strong id="statToday">0</strong><span>项</span></div>
+      <p class="stat-hint" id="statTodayHint">今天暂无安排</p>
+    </article>
+    <article class="stat-card is-overdue" id="statOverdueCard">
+      <div class="stat-top">
+        <span class="stat-label">已逾期</span>
+        <span class="stat-icon" aria-hidden="true"><svg class="icon"><use href="#i-alert"></use></svg></span>
+      </div>
+      <div class="stat-value"><strong id="statOverdue">0</strong><span>项</span></div>
+      <p class="stat-hint" id="statOverdueHint">没有逾期，状态不错</p>
+    </article>
+    <article class="stat-card is-done">
+      <div class="stat-top">
+        <span class="stat-label">本周完成</span>
+        <span class="stat-icon" aria-hidden="true"><svg class="icon"><use href="#i-check-circle"></use></svg></span>
+      </div>
+      <div class="stat-value"><strong id="statWeekDone">0</strong><span>项</span></div>
+      <p class="stat-hint" id="statWeekHint">继续保持自己的节奏</p>
+    </article>
+    <article class="stat-card is-upcoming">
+      <div class="stat-top">
+        <span class="stat-label">未来 7 天</span>
+        <span class="stat-icon" aria-hidden="true"><svg class="icon"><use href="#i-clock"></use></svg></span>
+      </div>
+      <div class="stat-value"><strong id="statUpcoming">0</strong><span>项</span></div>
+      <p class="stat-hint" id="statUpcomingHint">接下来没有安排</p>
+    </article>
+  </section>
+
+  <div class="workspace">
+    <section class="board" aria-labelledby="boardTitle">
+      <header class="board-head">
+        <div>
+          <div class="board-title-line">
+            <h2 id="boardTitle">任务清单</h2>
+            <span class="count-pill" id="boardCount">0 项</span>
+          </div>
+          <p id="boardSubtitle">按截止时间整理你的待办</p>
+        </div>
+        <div class="board-head-actions">
+          <button type="button" class="text-btn danger-text" id="clearCompletedTop" data-action="clear-completed" hidden>清除已完成</button>
+        </div>
+      </header>
+
+      <div class="toolbar" role="search">
+        <div class="search-field">
+          <svg class="icon" aria-hidden="true"><use href="#i-search"></use></svg>
+          <label for="searchInput" class="sr-only">搜索任务</label>
+          <input type="search" id="searchInput" placeholder="搜索任务、备注或分类" autocomplete="off" spellcheck="false">
+          <button type="button" class="search-clear" id="clearSearch" aria-label="清除搜索" hidden>
+            <svg class="icon" aria-hidden="true"><use href="#i-x"></use></svg>
+          </button>
+        </div>
+        <div class="filters-row">
+          <div class="select-wrap">
+            <label for="priorityFilter" class="sr-only">按优先级筛选</label>
+            <select id="priorityFilter" class="filter-select">
+              <option value="all">全部优先级</option>
+              <option value="high">高优先级</option>
+              <option value="medium">中优先级</option>
+              <option value="low">低优先级</option>
+            </select>
+          </div>
+          <div class="select-wrap">
+            <label for="categoryFilter" class="sr-only">按分类筛选</label>
+            <select id="categoryFilter" class="filter-select">
+              <option value="all">全部分类</option>
+            </select>
+          </div>
+          <div class="select-wrap">
+            <label for="statusFilter" class="sr-only">按完成状态筛选</label>
+            <select id="statusFilter" class="filter-select">
+              <option value="all">全部状态</option>
+              <option value="active">待办中</option>
+              <option value="completed">已完成</option>
+            </select>
+          </div>
+          <div class="select-wrap" id="sortWrap">
+            <label for="sortSelect" class="sr-only">排序方式</label>
+            <select id="sortSelect" class="filter-select">
+              <option value="due">按截止时间</option>
+              <option value="priority">按优先级</option>
+              <option value="created">按创建时间</option>
+            </select>
+          </div>
+          <button type="button" class="reset-filters" id="resetFilters" hidden>
+            <svg class="icon" aria-hidden="true"><use href="#i-refresh"></use></svg>
+            重置筛选
+          </button>
+        </div>
+      </div>
+
+      <div class="scope-bar" id="scopeBar" hidden>
+        <div class="scope-tabs" role="tablist" aria-label="日程范围">
+          <button type="button" class="scope-tab" data-scope="today" role="tab" aria-selected="true">今天</button>
+          <button type="button" class="scope-tab" data-scope="week" role="tab" aria-selected="false">本周</button>
+          <button type="button" class="scope-tab" data-scope="future" role="tab" aria-selected="false">未来</button>
+        </div>
+        <p class="scope-note">按日期分组 · 时间轴</p>
+      </div>
+
+      <div class="content" id="content"></div>
+    </section>
+
+    <aside class="rail" aria-label="日历与分类">
+      <section class="panel calendar-panel" aria-labelledby="calendarTitle">
+        <div class="mini-head">
+          <p class="mini-month" id="calendarTitle">2026年 10月</p>
+          <div class="mini-nav">
+            <button type="button" class="mini-nav-btn" data-cal-shift="-1" aria-label="上个月">
+              <svg class="icon" aria-hidden="true"><use href="#i-chevron-left"></use></svg>
+            </button>
+            <button type="button" class="mini-nav-btn" data-cal-shift="1" aria-label="下个月">
+              <svg class="icon" aria-hidden="true"><use href="#i-chevron-right"></use></svg>
+            </button>
+          </div>
+        </div>
+        <div class="weekdays" aria-hidden="true">
+          <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span class="wknd">六</span><span class="wknd">日</span>
+        </div>
+        <div class="calendar-grid" id="calendarGrid" role="group" aria-label="月历"></div>
+        <div class="mini-foot">
+          <span>点击日期查看当天安排</span>
+          <button type="button" data-action="calendar-today">回到今天</button>
+        </div>
+      </section>
+
+      <section class="panel categories-panel" aria-labelledby="categoriesTitle">
+        <div class="panel-heading">
+          <h3 id="categoriesTitle">分类</h3>
+          <span id="categoryTotal">0 项</span>
+        </div>
+        <div class="category-list" id="categoryList"></div>
+      </section>
+
+      <p class="privacy-note">
+        <svg class="icon" aria-hidden="true"><use href="#i-shield"></use></svg>
+        所有数据仅保存在本地浏览器，不会上传。
+      </p>
+    </aside>
+  </div>
+</main>
+
+<button type="button" class="fab" id="fabNew" data-action="new-task" aria-label="新建任务">
+  <svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg>
+</button>
+
+<dialog class="modal" id="taskDialog" aria-labelledby="dialogTitle">
+  <div class="modal-card">
+    <form id="taskForm" novalidate>
+      <header class="modal-head">
+        <div>
+          <p class="modal-eyebrow" id="dialogEyebrow">NEW TASK</p>
+          <h2 id="dialogTitle">新建任务</h2>
+        </div>
+        <button type="button" class="modal-close" id="closeDialogBtn" aria-label="关闭">
+          <svg class="icon" aria-hidden="true"><use href="#i-x"></use></svg>
+        </button>
+      </header>
+      <div class="modal-body">
+        <div class="field">
+          <label for="taskTitle">任务标题<span class="req" aria-hidden="true">*</span></label>
+          <input type="text" id="taskTitle" name="title" maxlength="120" placeholder="下一步要做什么？" autocomplete="off">
+          <p class="field-error" id="titleError" hidden>请填写任务标题</p>
+        </div>
+        <div class="field">
+          <div class="label-row">
+            <label for="taskNotes">备注</label>
+            <span class="optional">可选</span>
+          </div>
+          <textarea id="taskNotes" name="notes" rows="3" maxlength="800" placeholder="补充一些细节，或者写下完成它的理由…"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="taskDate">截止日期<span class="req" aria-hidden="true">*</span></label>
+            <input type="date" id="taskDate" name="date">
+          </div>
+          <div class="field">
+            <label for="taskTime">截止时间<span class="req" aria-hidden="true">*</span></label>
+            <input type="time" id="taskTime" name="time" step="60">
+          </div>
+        </div>
+        <p class="field-error" id="dueError" style="margin:-9px 0 14px" hidden>请选择有效的截止日期和时间</p>
+
+        <fieldset class="field priority-field">
+          <legend>优先级</legend>
+          <div class="priority-options">
+            <label class="priority-option">
+              <input type="radio" name="priority" value="high">
+              <span class="priority-ui">高优先级</span>
+            </label>
+            <label class="priority-option">
+              <input type="radio" name="priority" value="medium" checked>
+              <span class="priority-ui">中优先级</span>
+            </label>
+            <label class="priority-option">
+              <input type="radio" name="priority" value="low">
+              <span class="priority-ui">低优先级</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <div class="form-row">
+          <div class="field">
+            <label for="taskCategory">分类标签</label>
+            <input type="text" id="taskCategory" name="category" maxlength="24" placeholder="例如：学习、生活" autocomplete="off" list="categoryOptions">
+            <datalist id="categoryOptions"></datalist>
+            <div class="category-quick" id="categoryQuick" aria-label="常用分类"></div>
+          </div>
+          <div class="field">
+            <label for="reminderSelect">提前提醒</label>
+            <div class="select-wrap">
+              <select id="reminderSelect" name="reminder">
+                <option value="0">不提醒</option>
+                <option value="10">提前 10 分钟</option>
+                <option value="30" selected>提前 30 分钟</option>
+                <option value="60">提前 1 小时</option>
+                <option value="180">提前 3 小时</option>
+                <option value="1440">提前 1 天</option>
+                <option value="custom">自定义…</option>
+              </select>
+            </div>
+            <div class="custom-reminder" id="customReminderRow" hidden>
+              <input type="number" id="customReminderMinutes" min="1" max="43200" step="1" placeholder="分钟数" aria-label="自定义提前提醒分钟数">
+              <span>分钟前提醒</span>
+            </div>
+            <p class="reminder-hint" id="reminderHint">将在截止前 30 分钟提醒你</p>
+            <p class="field-error" id="reminderError" hidden>请输入 1 到 43200 之间的分钟数</p>
+          </div>
+        </div>
+      </div>
+      <footer class="modal-foot">
+        <span class="shortcut-note">Esc 取消 · Enter 保存</span>
+        <div>
+          <button type="button" class="btn btn-ghost" id="cancelDialogBtn">取消</button>
+          <button type="submit" class="btn btn-primary" id="saveTaskBtn">
+            <svg class="icon" aria-hidden="true"><use href="#i-check"></use></svg>
+            <span>保存任务</span>
+          </button>
+        </div>
+      </footer>
+    </form>
+  </div>
+</dialog>
+
+<div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="false"></div>
+<div class="sr-only" id="liveRegion" aria-live="assertive"></div>
+<script>
+(function () {
+  'use strict';
+
+  const STORAGE_KEY = 'rishi.tasks.v1';
+  const THEME_KEY = 'rishi.theme';
+  const VIEW_KEY = 'rishi.view';
+  const LAST_CATEGORY_KEY = 'rishi.lastCategory';
+  const DEFAULT_CATEGORIES = ['工作', '学习', '生活', '健康', '灵感'];
+  const PRIORITIES = {
+    high: { label: '高', order: 0 },
+    medium: { label: '中', order: 1 },
+    low: { label: '低', order: 2 }
+  };
+  const WEEKDAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+  const WEEKDAYS_FULL = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+  const MONTH_NAMES = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
+  const $ = (selector, root) => (root || document).querySelector(selector);
+  const $$ = (selector, root) => Array.from((root || document).querySelectorAll(selector));
+
+  const els = {
+    navTabs: $$('.nav-tab'),
+    navTaskCount: $('#navTaskCount'),
+    themeToggle: $('#themeToggle'),
+    metaTheme: $('#metaTheme'),
+    dateLine: $('#dateLine'),
+    weekLine: $('#weekLine'),
+    greetingText: $('#greetingText'),
+    greetingSub: $('#greetingSub'),
+    progressRing: $('#progressRing'),
+    completionRate: $('#completionRate'),
+    completionCaption: $('#completionCaption'),
+    statToday: $('#statToday'),
+    statTodayHint: $('#statTodayHint'),
+    statOverdue: $('#statOverdue'),
+    statOverdueHint: $('#statOverdueHint'),
+    statOverdueCard: $('#statOverdueCard'),
+    statWeekDone: $('#statWeekDone'),
+    statWeekHint: $('#statWeekHint'),
+    statUpcoming: $('#statUpcoming'),
+    statUpcomingHint: $('#statUpcomingHint'),
+    boardTitle: $('#boardTitle'),
+    boardCount: $('#boardCount'),
+    boardSubtitle: $('#boardSubtitle'),
+    content: $('#content'),
+    scopeBar: $('#scopeBar'),
+    clearCompletedTop: $('#clearCompletedTop'),
+    searchInput: $('#searchInput'),
+    clearSearch: $('#clearSearch'),
+    priorityFilter: $('#priorityFilter'),
+    categoryFilter: $('#categoryFilter'),
+    statusFilter: $('#statusFilter'),
+    sortSelect: $('#sortSelect'),
+    sortWrap: $('#sortWrap'),
+    resetFilters: $('#resetFilters'),
+    calendarTitle: $('#calendarTitle'),
+    calendarGrid: $('#calendarGrid'),
+    categoryList: $('#categoryList'),
+    categoryTotal: $('#categoryTotal'),
+    taskDialog: $('#taskDialog'),
+    taskForm: $('#taskForm'),
+    dialogEyebrow: $('#dialogEyebrow'),
+    dialogTitle: $('#dialogTitle'),
+    closeDialogBtn: $('#closeDialogBtn'),
+    cancelDialogBtn: $('#cancelDialogBtn'),
+    saveTaskBtn: $('#saveTaskBtn'),
+    taskTitle: $('#taskTitle'),
+    taskNotes: $('#taskNotes'),
+    taskDate: $('#taskDate'),
+    taskTime: $('#taskTime'),
+    taskCategory: $('#taskCategory'),
+    categoryOptions: $('#categoryOptions'),
+    categoryQuick: $('#categoryQuick'),
+    reminderSelect: $('#reminderSelect'),
+    customReminderRow: $('#customReminderRow'),
+    customReminderMinutes: $('#customReminderMinutes'),
+    reminderHint: $('#reminderHint'),
+    reminderError: $('#reminderError'),
+    titleError: $('#titleError'),
+    dueError: $('#dueError'),
+    toastRegion: $('#toastRegion'),
+    liveRegion: $('#liveRegion')
+  };
+
+  const state = {
+    tasks: loadTasks(),
+    view: readView(),
+    scheduleScope: 'today',
+    focusDate: null,
+    filters: { q: '', priority: 'all', category: 'all', status: 'all' },
+    sort: 'due',
+    calendarMonth: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+    editingId: null,
+    completedCollapsed: false,
+    theme: document.documentElement.dataset.theme || 'light'
+  };
+
+  let categoryFilterSignature = '';
+  let toastSequence = 0;
+  let storageWarningShown = false;
+
+  init();
+
+  function init() {
+    updateThemeUi();
+    wireEvents();
+    renderAll();
+    setTimeout(checkReminders, 1100);
+    window.setInterval(function () {
+      if (!els.taskDialog.open) checkReminders();
+    }, 15000);
+    window.setInterval(refreshTimeSensitiveUi, 60000);
+    window.addEventListener('storage', handleStorageSync);
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') {
+        checkReminders();
+        renderAll();
+      }
+    });
+    if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./sw.js').catch(function () {
+          /* 离线能力是可选项，注册失败不影响应用本身。 */
+        });
+      });
+    }
+  }
+
+  /* ------------------------------------------------------------------
+     基础工具
+  ------------------------------------------------------------------ */
+  function escapeHTML(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (char) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char];
+    });
+  }
+
+  function icon(name, extraClass) {
+    return '<svg class="icon ' + (extraClass || '') + '" aria-hidden="true"><use href="#i-' + name + '"></use></svg>';
+  }
+
+  function pad(number) {
+    return String(number).padStart(2, '0');
+  }
+
+  function uid() {
+    if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+      return window.crypto.randomUUID();
+    }
+    return 'task-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 9);
+  }
+
+  function startOfDay(date) {
+    const result = new Date(date);
+    result.setHours(0, 0, 0, 0);
+    return result;
+  }
+
+  function endOfDay(date) {
+    const result = new Date(date);
+    result.setHours(23, 59, 59, 999);
+    return result;
+  }
+
+  function addDays(date, days) {
+    const result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+  }
+
+  function startOfWeek(date) {
+    const result = startOfDay(date);
+    const day = (result.getDay() + 6) % 7;
+    result.setDate(result.getDate() - day);
+    return result;
+  }
+
+  function endOfWeek(date) {
+    const result = startOfWeek(date);
+    result.setDate(result.getDate() + 6);
+    return endOfDay(result);
+  }
+
+  function sameDay(a, b) {
+    return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  }
+
+  function dateKey(date) {
+    return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate());
+  }
+
+  function parseDateKey(key) {
+    const parts = String(key).split('-').map(Number);
+    return new Date(parts[0], parts[1] - 1, parts[2]);
+  }
+
+  function toDateInputValue(date) {
+    return dateKey(date);
+  }
+
+  function toTimeInputValue(date) {
+    return pad(date.getHours()) + ':' + pad(date.getMinutes());
+  }
+
+  function formatTime(value) {
+    const date = value instanceof Date ? value : new Date(value);
+    if (isNaN(date.getTime())) return '--:--';
+    return pad(date.getHours()) + ':' + pad(date.getMinutes());
+  }
+
+  function formatMonthDay(date) {
+    return (date.getMonth() + 1) + '月' + date.getDate() + '日';
+  }
+
+  function formatRange(start, end) {
+    return (start.getMonth() + 1) + '月' + start.getDate() + '日 – ' + (end.getMonth() + 1) + '月' + end.getDate() + '日';
+  }
+
+  function getWeekNumber(date) {
+    const temp = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const day = temp.getUTCDay() || 7;
+    temp.setUTCDate(temp.getUTCDate() + 4 - day);
+    const yearStart = new Date(Date.UTC(temp.getUTCFullYear(), 0, 1));
+    return Math.ceil((((temp - yearStart) / 86400000) + 1) / 7);
+  }
+
+  function formatDueLabel(value) {
+    if (!value) return '未设置截止时间';
+    const date = new Date(value);
+    if (isNaN(date.getTime())) return '时间待确认';
+    const now = new Date();
+    const time = formatTime(date);
+    if (sameDay(date, now)) return '今天 ' + time;
+    if (sameDay(date, addDays(now, 1))) return '明天 ' + time;
+    if (sameDay(date, addDays(now, -1))) return '昨天 ' + time;
+    const prefix = date.getFullYear() !== now.getFullYear() ? date.getFullYear() + '年' : '';
+    return prefix + (date.getMonth() + 1) + '月' + date.getDate() + '日 ' + WEEKDAYS[date.getDay()] + ' ' + time;
+  }
+
+  function overdueText(value) {
+    const date = new Date(value);
+    const diff = Date.now() - date.getTime();
+    if (!isFinite(diff) || diff <= 0) return '已逾期';
+    const minutes = Math.floor(diff / 60000);
+    if (minutes < 1) return '刚刚逾期';
+    if (minutes < 60) return '已逾期 ' + minutes + ' 分钟';
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return '已逾期 ' + hours + ' 小时';
+    const days = Math.floor(hours / 24);
+    if (days < 30) return '已逾期 ' + days + ' 天';
+    return '已逾期';
+  }
+
+  function remainingText(milliseconds) {
+    if (milliseconds <= 0) return '已到截止时间';
+    const minutes = Math.ceil(milliseconds / 60000);
+    if (minutes < 1) return '不到 1 分钟';
+    if (minutes < 60) return minutes + ' 分钟';
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) {
+      const rest = minutes % 60;
+      return hours + ' 小时' + (rest ? ' ' + rest + ' 分钟' : '');
+    }
+    const days = Math.floor(hours / 24);
+    return days + ' 天';
+  }
+
+  function reminderOffsetText(minutes) {
+    const value = Number(minutes);
+    if (!value) return '';
+    if (value % 10080 === 0) return (value / 10080) + ' 周';
+    if (value >= 1440) {
+      const days = Math.floor(value / 1440);
+      const hours = Math.floor((value % 1440) / 60);
+      return days + ' 天' + (hours ? ' ' + hours + ' 小时' : '');
+    }
+    if (value >= 60) {
+      const hours = Math.floor(value / 60);
+      const mins = value % 60;
+      return hours + ' 小时' + (mins ? ' ' + mins + ' 分钟' : '');
+    }
+    return value + ' 分钟';
+  }
+
+  function reminderText(minutes) {
+    if (!minutes) return '不提醒';
+    return '提前 ' + reminderOffsetText(minutes) + ' 提醒';
+  }
+
+  function relativeDateLabel(date) {
+    const now = new Date();
+    if (sameDay(date, now)) return '今天';
+    if (sameDay(date, addDays(now, 1))) return '明天';
+    if (sameDay(date, addDays(now, -1))) return '昨天';
+    return WEEKDAYS[date.getDay()];
+  }
+
+  function greetingForHour(hour) {
+    if (hour < 5) return '夜深了，记得给自己留一点休息。';
+    if (hour < 11) return '早上好，把今天慢慢展开。';
+    if (hour < 14) return '中午好，先照顾好自己。';
+    if (hour < 18) return '下午好，今天也从容一点。';
+    return '晚上好，收一收今天的心情。';
+  }
+
+  function taskCategory(task) {
+    return (task.category || '').trim() || '未分类';
+  }
+
+  function taskDue(task) {
+    if (!task.due) return null;
+    const date = new Date(task.due);
+    return isNaN(date.getTime()) ? null : date;
+  }
+
+  function isOverdue(task) {
+    if (task.completed) return false;
+    const date = taskDue(task);
+    return Boolean(date && date.getTime() < Date.now());
+  }
+
+  function categoryTone(name) {
+    let hash = 0;
+    const text = String(name || '未分类');
+    for (let i = 0; i < text.length; i += 1) {
+      hash = ((hash * 31) + text.charCodeAt(i)) >>> 0;
+    }
+    return 'tone-' + (hash % 6);
+  }
+
+  function categoryClass(name) {
+    return categoryTone(name);
+  }
+
+  function priorityLabel(priority) {
+    return PRIORITIES[priority] ? PRIORITIES[priority].label : '中';
+  }
+
+  /* ------------------------------------------------------------------
+     存储
+  ------------------------------------------------------------------ */
+  function readStored(key) {
+    try {
+      return window.localStorage.getItem(key);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function writeStored(key, value) {
+    try {
+      window.localStorage.setItem(key, value);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function loadTasks() {
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return [];
+      return parsed.map(normalizeTask).filter(Boolean);
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function normalizeTask(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    const title = String(raw.title || '').trim().slice(0, 120);
+    if (!title) return null;
+    const dueDate = raw.due ? new Date(raw.due) : null;
+    const due = dueDate && !isNaN(dueDate.getTime()) ? dueDate.toISOString() : '';
+    const completedAtDate = raw.completedAt ? new Date(raw.completedAt) : null;
+    const createdAtDate = raw.createdAt ? new Date(raw.createdAt) : null;
+    const updatedAtDate = raw.updatedAt ? new Date(raw.updatedAt) : null;
+    const priority = PRIORITIES[raw.priority] ? raw.priority : 'medium';
+    const reminderNumber = Number(raw.reminder);
+    const reminder = Number.isFinite(reminderNumber) && reminderNumber > 0 ? Math.min(43200, Math.round(reminderNumber)) : 0;
+    const category = String(raw.category || '').trim().slice(0, 24) || '未分类';
+    const completed = Boolean(raw.completed);
+    return {
+      id: String(raw.id || uid()),
+      title: title,
+      notes: String(raw.notes || '').slice(0, 800),
+      due: due,
+      priority: priority,
+      category: category,
+      reminder: reminder,
+      completed: completed,
+      completedAt: completed && completedAtDate && !isNaN(completedAtDate.getTime())
+        ? completedAtDate.toISOString()
+        : (completed ? new Date().toISOString() : null),
+      createdAt: createdAtDate && !isNaN(createdAtDate.getTime()) ? createdAtDate.toISOString() : new Date().toISOString(),
+      updatedAt: updatedAtDate && !isNaN(updatedAtDate.getTime()) ? updatedAtDate.toISOString() : new Date().toISOString(),
+      reminderNotified: Boolean(raw.reminderNotified)
+    };
+  }
+
+  function saveTasks() {
+    const saved = writeStored(STORAGE_KEY, JSON.stringify(state.tasks));
+    if (!saved && !storageWarningShown) {
+      storageWarningShown = true;
+      showToast({
+        type: 'error',
+        title: '无法写入本地存储',
+        message: '浏览器可能禁用了本地存储，本次修改仅在当前页面有效。',
+        duration: 7000
+      });
+    }
+    return saved;
+  }
+
+  function readView() {
+    const saved = readStored(VIEW_KEY);
+    return saved === 'schedule' ? 'schedule' : 'tasks';
+  }
+
+  /* ------------------------------------------------------------------
+     主题
+  ------------------------------------------------------------------ */
+  function updateThemeUi() {
+    const isDark = state.theme === 'dark';
+    document.documentElement.dataset.theme = state.theme;
+    els.themeToggle.setAttribute('aria-label', isDark ? '切换到浅色主题' : '切换到深色主题');
+    els.themeToggle.setAttribute('title', isDark ? '切换到浅色主题' : '切换到深色主题');
+    if (els.metaTheme) els.metaTheme.setAttribute('content', isDark ? '#121512' : '#f6f4ef');
+  }
+
+  function toggleTheme() {
+    state.theme = state.theme === 'dark' ? 'light' : 'dark';
+    writeStored(THEME_KEY, state.theme);
+    updateThemeUi();
+  }
+
+  /* ------------------------------------------------------------------
+     统计与问候
+  ------------------------------------------------------------------ */
+  function computeStats() {
+    const now = new Date();
+    const active = state.tasks.filter(function (task) { return !task.completed; });
+    const completed = state.tasks.filter(function (task) { return task.completed; });
+    const todayTasks = active.filter(function (task) {
+      const date = taskDue(task);
+      return date && sameDay(date, now);
+    });
+    const todayOverdue = todayTasks.filter(function (task) { return isOverdue(task); });
+    const overdueTasks = active.filter(isOverdue);
+    const weekStart = startOfWeek(now);
+    const weekEnd = endOfWeek(now);
+    const weekDone = completed.filter(function (task) {
+      if (!task.completedAt) return false;
+      const date = new Date(task.completedAt);
+      return date >= weekStart && date <= weekEnd;
+    });
+    const sevenDaysLater = new Date(now.getTime() + (7 * 86400000));
+    const upcoming = active.filter(function (task) {
+      const date = taskDue(task);
+      return date && date.getTime() > now.getTime() && date.getTime() <= sevenDaysLater.getTime();
+    }).sort(function (a, b) { return taskDue(a) - taskDue(b); });
+    const rate = state.tasks.length ? Math.round((completed.length / state.tasks.length) * 100) : 0;
+    return {
+      now: now,
+      active: active,
+      completed: completed,
+      todayTasks: todayTasks,
+      todayOverdue: todayOverdue,
+      overdueTasks: overdueTasks,
+      weekDone: weekDone,
+      upcoming: upcoming,
+      rate: rate,
+      weekStart: weekStart,
+      weekEnd: weekEnd
+    };
+  }
+
+  function renderHeader() {
+    const now = new Date();
+    els.dateLine.textContent = formatMonthDay(now) + ' · ' + WEEKDAYS_FULL[now.getDay()];
+    els.weekLine.textContent = '第 ' + getWeekNumber(now) + ' 周';
+    els.greetingText.textContent = greetingForHour(now.getHours());
+    renderGreetingSub(computeStats());
+  }
+
+  function renderGreetingSub(stats) {
+    let text;
+    if (!state.tasks.length) {
+      text = '从写下第一件小事开始，慢慢建立自己的节奏。';
+    } else if (stats.overdueTasks.length) {
+      text = '有 ' + stats.overdueTasks.length + ' 项任务已逾期，先挑最要紧的一件开始。';
+    } else if (stats.todayTasks.length) {
+      const upcomingToday = stats.todayTasks.filter(function (task) {
+        const date = taskDue(task);
+        return date && date.getTime() > Date.now();
+      }).sort(function (a, b) { return taskDue(a) - taskDue(b); });
+      if (upcomingToday.length) {
+        const next = taskDue(upcomingToday[0]);
+        text = '今天还有 ' + stats.todayTasks.length + ' 项待办，最近一项 ' + formatTime(next) + ' 截止。';
+      } else {
+        text = '今天还有 ' + stats.todayTasks.length + ' 项待办，按自己的节奏来。';
+      }
+    } else if (stats.active.length) {
+      const nextTask = stats.active.filter(function (task) { return taskDue(task); }).sort(function (a, b) {
+        return taskDue(a) - taskDue(b);
+      })[0];
+      text = nextTask
+        ? '今天暂时没有待办，下一项安排在 ' + formatDueLabel(nextTask.due) + '。'
+        : '今天暂时没有待办，清单里还有 ' + stats.active.length + ' 项安排。';
+    } else {
+      text = '所有任务都完成了，给自己留一点空白吧。';
+    }
+    els.greetingSub.textContent = text;
+  }
+
+  function renderStats() {
+    const stats = computeStats();
+    const now = stats.now;
+
+    els.statToday.textContent = String(stats.todayTasks.length);
+    els.statOverdue.textContent = String(stats.overdueTasks.length);
+    els.statWeekDone.textContent = String(stats.weekDone.length);
+    els.statUpcoming.textContent = String(stats.upcoming.length);
+    els.completionRate.textContent = String(stats.rate);
+    els.progressRing.style.setProperty('--value', String(stats.rate));
+    els.completionCaption.textContent = state.tasks.length
+      ? '已完成 ' + stats.completed.length + ' / ' + state.tasks.length + ' 项'
+      : '还没有任务';
+    els.statOverdueCard.classList.toggle('has-items', stats.overdueTasks.length > 0);
+
+    if (!stats.todayTasks.length) {
+      els.statTodayHint.textContent = '今天暂无安排';
+    } else if (stats.todayOverdue.length) {
+      els.statTodayHint.textContent = '包含 ' + stats.todayOverdue.length + ' 项已逾期';
+    } else {
+      const laterToday = stats.todayTasks.filter(function (task) {
+        const date = taskDue(task);
+        return date && date.getTime() > now.getTime();
+      }).sort(function (a, b) { return taskDue(a) - taskDue(b); });
+      els.statTodayHint.textContent = laterToday.length
+        ? '最近 ' + formatTime(taskDue(laterToday[0])) + ' 截止'
+        : '今天的安排正在进行';
+    }
+
+    els.statOverdueHint.textContent = stats.overdueTasks.length
+      ? '优先处理一下吧'
+      : '没有逾期，状态不错';
+    els.statWeekHint.textContent = formatRange(stats.weekStart, stats.weekEnd);
+    els.statUpcomingHint.textContent = stats.upcoming.length
+      ? (stats.upcoming[0] ? '下一项：' + formatDueLabel(stats.upcoming[0].due) : '接下来的安排已就绪')
+      : '接下来没有安排';
+    els.navTaskCount.textContent = String(stats.active.length);
+    renderGreetingSub(stats);
+  }
+
+  /* ------------------------------------------------------------------
+     筛选、排序与分组
+  ------------------------------------------------------------------ */
+  function isFiltering() {
+    return Boolean(
+      state.filters.q.trim() ||
+      state.filters.priority !== 'all' ||
+      state.filters.category !== 'all' ||
+      state.filters.status !== 'all'
+    );
+  }
+
+  function getFilteredTasks() {
+    const query = state.filters.q.trim().toLowerCase();
+    return state.tasks.filter(function (task) {
+      if (state.filters.status === 'active' && task.completed) return false;
+      if (state.filters.status === 'completed' && !task.completed) return false;
+      if (state.filters.priority !== 'all' && task.priority !== state.filters.priority) return false;
+      if (state.filters.category !== 'all' && taskCategory(task) !== state.filters.category) return false;
+      if (query) {
+        const haystack = [
+          task.title,
+          task.notes,
+          taskCategory(task),
+          priorityLabel(task.priority),
+          task.completed ? '已完成' : '待办'
+        ].join(' ').toLowerCase();
+        if (!haystack.includes(query)) return false;
+      }
+      return true;
+    });
+  }
+
+  function sortByMode(tasks, mode) {
+    const copy = tasks.slice();
+    const rank = { high: 0, medium: 1, low: 2 };
+    copy.sort(function (a, b) {
+      if (mode === 'created') {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      }
+      if (mode === 'priority') {
+        const diff = (rank[a.priority] == null ? 1 : rank[a.priority]) - (rank[b.priority] == null ? 1 : rank[b.priority]);
+        if (diff !== 0) return diff;
+      }
+      const aDue = taskDue(a);
+      const bDue = taskDue(b);
+      const aTime = aDue ? aDue.getTime() : Number.MAX_SAFE_INTEGER;
+      const bTime = bDue ? bDue.getTime() : Number.MAX_SAFE_INTEGER;
+      if (aTime !== bTime) return aTime - bTime;
+      return (rank[a.priority] == null ? 1 : rank[a.priority]) - (rank[b.priority] == null ? 1 : rank[b.priority]);
+    });
+    return copy;
+  }
+
+  function classifyActiveTask(task) {
+    const date = taskDue(task);
+    if (!date) return 'later';
+    const now = new Date();
+    if (date.getTime() < now.getTime()) return 'overdue';
+    if (sameDay(date, now)) return 'today';
+    if (sameDay(date, addDays(now, 1))) return 'tomorrow';
+    if (date <= endOfWeek(now)) return 'week';
+    return 'later';
+  }
+
+  function groupActiveTasks(tasks) {
+    const groups = {
+      overdue: { key: 'overdue', label: '已逾期', items: [], meta: '先处理最要紧的' },
+      today: { key: 'today', label: '今天', items: [], meta: '' },
+      tomorrow: { key: 'tomorrow', label: '明天', items: [], meta: '' },
+      week: { key: 'week', label: '本周内', items: [], meta: '' },
+      later: { key: 'later', label: '更晚', items: [], meta: '未来安排' }
+    };
+    const now = new Date();
+    groups.today.meta = formatMonthDay(now) + ' · ' + WEEKDAYS[now.getDay()];
+    groups.tomorrow.meta = formatMonthDay(addDays(now, 1)) + ' · ' + WEEKDAYS[addDays(now, 1).getDay()];
+    groups.week.meta = formatRange(addDays(now, 2), endOfWeek(now));
+    tasks.forEach(function (task) {
+      groups[classifyActiveTask(task)].items.push(task);
+    });
+    return ['overdue', 'today', 'tomorrow', 'week', 'later'].map(function (key) {
+      const group = groups[key];
+      group.items = sortByMode(group.items, state.sort);
+      return group;
+    }).filter(function (group) { return group.items.length > 0; });
+  }
+
+  function sortCompleted(tasks) {
+    return tasks.slice().sort(function (a, b) {
+      const aTime = a.completedAt ? new Date(a.completedAt).getTime() : 0;
+      const bTime = b.completedAt ? new Date(b.completedAt).getTime() : 0;
+      return bTime - aTime;
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     渲染：导航、工具栏、任务
+  ------------------------------------------------------------------ */
+  function renderAll() {
+    renderHeader();
+    renderStats();
+    syncToolbar();
+    renderNav();
+    renderBoard();
+    renderCalendar();
+    renderCategories();
+    updateSearchClear();
+  }
+
+  function renderNav() {
+    els.navTabs.forEach(function (tab) {
+      const active = tab.dataset.view === state.view;
+      tab.classList.toggle('active', active);
+      if (active) tab.setAttribute('aria-current', 'page');
+      else tab.removeAttribute('aria-current');
+    });
+  }
+
+  function allTaskCategories() {
+    const values = new Set();
+    state.tasks.forEach(function (task) { values.add(taskCategory(task)); });
+    return Array.from(values);
+  }
+
+  function knownCategories() {
+    const values = DEFAULT_CATEGORIES.slice();
+    allTaskCategories().forEach(function (category) {
+      if (!values.includes(category) && category !== '未分类') values.push(category);
+    });
+    return values;
+  }
+
+  function syncToolbar() {
+    const categories = allTaskCategories();
+    const signature = categories.join('\u0001');
+    if (signature !== categoryFilterSignature) {
+      categoryFilterSignature = signature;
+      const options = ['<option value="all">全部分类</option>'];
+      categories.sort(function (a, b) { return a.localeCompare(b, 'zh-CN'); }).forEach(function (category) {
+        options.push('<option value="' + escapeHTML(category) + '">' + escapeHTML(category) + '</option>');
+      });
+      if (state.filters.category !== 'all' && !categories.includes(state.filters.category)) {
+        options.push('<option value="' + escapeHTML(state.filters.category) + '">' + escapeHTML(state.filters.category) + '</option>');
+      }
+      els.categoryFilter.innerHTML = options.join('');
+    }
+    els.searchInput.value = state.filters.q;
+    els.priorityFilter.value = state.filters.priority;
+    els.categoryFilter.value = state.filters.category;
+    els.statusFilter.value = state.filters.status;
+    els.sortSelect.value = state.sort;
+    els.resetFilters.hidden = !(isFiltering() || state.sort !== 'due');
+    updateScopeTabs();
+    updateSearchClear();
+  }
+
+  function updateSearchClear() {
+    els.clearSearch.hidden = !els.searchInput.value;
+  }
+
+  function updateScopeTabs() {
+    const tabs = $$('.scope-tab', els.scopeBar);
+    tabs.forEach(function (tab) {
+      const active = !state.focusDate && tab.dataset.scope === state.scheduleScope;
+      tab.classList.toggle('active', active);
+      tab.setAttribute('aria-selected', String(active));
+    });
+  }
+
+  function renderBoard() {
+    const filtered = getFilteredTasks();
+    const stats = computeStats();
+    const isSchedule = state.view === 'schedule';
+    els.scopeBar.hidden = !isSchedule;
+    els.sortWrap.hidden = isSchedule;
+    els.resetFilters.hidden = isSchedule ? !isFiltering() : !(isFiltering() || state.sort !== 'due');
+    els.clearCompletedTop.hidden = isSchedule || !stats.completed.length;
+    els.boardTitle.textContent = isSchedule ? '日程安排' : '任务清单';
+
+    let result;
+    if (isSchedule) {
+      result = buildScheduleHTML(filtered);
+      els.boardSubtitle.textContent = result.subtitle;
+    } else {
+      result = buildTaskListHTML(filtered, stats);
+      const sortIntro = state.sort === 'priority'
+        ? '按优先级排序'
+        : (state.sort === 'created' ? '按创建时间排序' : '按截止时间整理你的待办');
+      if (isFiltering()) {
+        els.boardSubtitle.textContent = '筛选出 ' + result.count + ' 项 · 共 ' + state.tasks.length + ' 项任务';
+      } else {
+        els.boardSubtitle.textContent = stats.active.length
+          ? sortIntro + ' · 还有 ' + stats.active.length + ' 项未完成'
+          : sortIntro;
+      }
+    }
+    els.boardCount.textContent = result.count + ' 项';
+    els.content.innerHTML = result.html;
+    updateScopeTabs();
+  }
+
+  function taskItemHTML(task) {
+    const category = taskCategory(task);
+    const categoryClassValue = categoryClass(category);
+    const overdue = isOverdue(task);
+    const priority = PRIORITIES[task.priority] ? task.priority : 'medium';
+    const dueLabel = task.due ? formatDueLabel(task.due) : '未设置截止时间';
+    const reminder = task.reminder > 0
+      ? '<span class="meta-item" title="' + escapeHTML(reminderText(task.reminder)) + '">' + icon('bell') + escapeHTML(reminderText(task.reminder)) + '</span>'
+      : '';
+    const notes = task.notes
+      ? '<p class="task-notes">' + escapeHTML(task.notes) + '</p>'
+      : '';
+    const overdueBadge = overdue
+      ? '<span class="overdue-pill">' + icon('alert') + escapeHTML(overdueText(task.due)) + '</span>'
+      : '';
+    return '<article class="task ' + (overdue ? 'is-overdue ' : '') + (task.completed ? 'is-completed' : '') + '" data-task-id="' + escapeHTML(task.id) + '">' +
+      '<label class="task-check" title="' + (task.completed ? '撤销完成' : '标记为完成') + '">' +
+        '<input type="checkbox" class="js-task-check" data-id="' + escapeHTML(task.id) + '"' + (task.completed ? ' checked' : '') + ' aria-label="' + (task.completed ? '撤销完成' : '标记完成') + '：' + escapeHTML(task.title) + '">' +
+      '</label>' +
+      '<div class="task-main" data-action="edit" data-id="' + escapeHTML(task.id) + '" role="button" tabindex="0" aria-label="编辑任务：' + escapeHTML(task.title) + '">' +
+        '<div class="task-title-row">' +
+          '<span class="prio ' + priority + '">' + priorityLabel(priority) + '</span>' +
+          '<h3 class="task-title">' + escapeHTML(task.title) + '</h3>' +
+          overdueBadge +
+        '</div>' +
+        notes +
+        '<div class="task-meta">' +
+          '<span class="meta-item' + (overdue ? ' due-overdue' : '') + '">' + icon('clock') + escapeHTML(dueLabel) + '</span>' +
+          '<span class="cat-chip ' + categoryClassValue + '">' + escapeHTML(category) + '</span>' +
+          reminder +
+        '</div>' +
+      '</div>' +
+      '<div class="task-actions">' +
+        '<button type="button" class="action-btn" data-action="edit" data-id="' + escapeHTML(task.id) + '" aria-label="编辑任务：' + escapeHTML(task.title) + '" title="编辑">' + icon('edit') + '</button>' +
+        '<button type="button" class="action-btn delete" data-action="delete" data-id="' + escapeHTML(task.id) + '" aria-label="删除任务：' + escapeHTML(task.title) + '" title="删除">' + icon('trash') + '</button>' +
+      '</div>' +
+    '</article>';
+  }
+
+  function buildTaskListHTML(filtered, stats) {
+    if (!filtered.length) {
+      return {
+        count: 0,
+        html: emptyStateHTML(!state.tasks.length ? 'no-tasks' : 'no-results')
+      };
+    }
+
+    const active = filtered.filter(function (task) { return !task.completed; });
+    const completed = filtered.filter(function (task) { return task.completed; });
+    let html = '';
+
+    if (state.filters.status !== 'completed') {
+      if (active.length) {
+        if (state.sort === 'due') {
+          const groups = groupActiveTasks(active);
+          html += groups.map(function (group) {
+            return '<section class="task-group">' +
+              '<div class="group-head ' + group.key + '">' +
+                '<div class="group-title"><span class="group-dot" aria-hidden="true"></span><h3>' + group.label + '</h3><span class="group-count">' + group.items.length + '</span></div>' +
+                '<span class="group-date">' + escapeHTML(group.meta) + '</span>' +
+              '</div>' +
+              '<div class="task-list">' + group.items.map(taskItemHTML).join('') + '</div>' +
+            '</section>';
+          }).join('');
+        } else {
+          const sortedActive = sortByMode(active, state.sort);
+          const sortMeta = state.sort === 'priority' ? '优先级从高到低' : '最新创建在前';
+          html += '<section class="task-group">' +
+            '<div class="group-head">' +
+              '<div class="group-title"><span class="group-dot" aria-hidden="true"></span><h3>待办任务</h3><span class="group-count">' + sortedActive.length + '</span></div>' +
+              '<span class="group-date">' + sortMeta + '</span>' +
+            '</div>' +
+            '<div class="task-list">' + sortedActive.map(taskItemHTML).join('') + '</div>' +
+          '</section>';
+        }
+      } else if (!isFiltering() && completed.length) {
+        html += '<div class="all-clear">' + icon('sparkle') + '<span><strong>待办已经清空。</strong>做得很好，给自己一点留白吧。</span></div>';
+      } else if (state.filters.status === 'active') {
+        return {
+          count: 0,
+          html: emptyStateHTML('no-results')
+        };
+      }
+    }
+
+    if (state.filters.status !== 'active' && completed.length) {
+      html += buildCompletedSection(completed, state.filters.status === 'completed');
+    }
+
+    if (!html) {
+      return {
+        count: 0,
+        html: emptyStateHTML(isFiltering() ? 'no-results' : 'no-tasks')
+      };
+    }
+
+    return { count: filtered.length, html: html };
+  }
+
+  function buildCompletedSection(completed, noBorder) {
+    const items = sortCompleted(completed);
+    const collapsed = state.completedCollapsed;
+    return '<section class="task-group completed-group">' +
+      '<div class="group-head completed-head' + (noBorder ? ' no-border' : '') + '">' +
+        '<button type="button" class="completed-toggle" data-action="toggle-completed" aria-expanded="' + String(!collapsed) + '">' +
+          icon('chevron-down', 'chevron') +
+          '<span>已完成</span>' +
+          '<span class="group-count">' + completed.length + '</span>' +
+        '</button>' +
+        '<div class="completed-tools">' +
+          '<button type="button" class="text-btn danger-text" data-action="clear-completed">清除已完成</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="task-list completed-list"' + (collapsed ? ' hidden' : '') + '>' + items.map(taskItemHTML).join('') + '</div>' +
+    '</section>';
+  }
+
+  function emptyStateHTML(kind) {
+    const art = '<div class="empty-art" aria-hidden="true">' +
+      '<svg viewBox="0 0 160 120" fill="none">' +
+        '<ellipse cx="80" cy="108" rx="50" ry="6.5" fill="var(--surface-soft)"/>' +
+        '<rect x="43" y="22" width="74" height="76" rx="16" fill="var(--surface)" stroke="var(--line)" stroke-width="1.4"/>' +
+        '<rect x="55" y="39" width="22" height="7" rx="3.5" fill="var(--accent-soft)"/>' +
+        '<circle cx="103" cy="42.5" r="5.5" fill="var(--accent-soft)"/>' +
+        '<path d="M55 61h49M55 73h39M55 85h23" stroke="var(--line-strong)" stroke-width="2" stroke-linecap="round"/>' +
+        '<circle cx="106" cy="84" r="13" fill="var(--accent)" opacity=".13"/>' +
+        '<path d="m100.3 84.2 3.9 3.9 7.4-7.4" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '<circle cx="32" cy="43" r="4" fill="var(--medium-soft)"/>' +
+        '<path d="M132 26v9M127.5 30.5h9" stroke="var(--medium)" stroke-width="1.5" stroke-linecap="round" opacity=".65"/>' +
+        '<circle cx="128" cy="94" r="2.2" fill="var(--line-strong)"/>' +
+      '</svg>' +
+    '</div>';
+
+    if (kind === 'no-results') {
+      return '<div class="empty-state">' + art +
+        '<h3>没有找到匹配的任务</h3>' +
+        '<p>换个关键词，或者放宽筛选条件试试。</p>' +
+        '<div class="empty-actions">' +
+          '<button type="button" class="btn btn-soft" data-action="reset-filters">清除筛选条件</button>' +
+        '</div>' +
+      '</div>';
+    }
+
+    if (kind === 'schedule-empty') {
+      const message = state.focusDate
+        ? '这一天还没有安排，留一点空白也很好。'
+        : (state.scheduleScope === 'week'
+          ? '本周还没有写下安排，可以从一件小事开始。'
+          : (state.scheduleScope === 'future'
+            ? '未来还没有安排，慢慢来，不必把每一天填满。'
+            : '今天还没有安排，给自己一点呼吸的空间。'));
+      const extra = state.scheduleScope === 'today' && !state.focusDate
+        ? '<button type="button" class="btn btn-ghost" data-scope="week">查看本周</button>'
+        : '';
+      return '<div class="empty-state">' + art +
+        '<h3>' + (state.focusDate ? '这一天很安静' : '时间还很宽裕') + '</h3>' +
+        '<p>' + message + '</p>' +
+        '<div class="empty-actions">' +
+          '<button type="button" class="btn btn-soft" data-action="new-task">' + icon('plus') + '写下一项安排</button>' +
+          extra +
+        '</div>' +
+      '</div>';
+    }
+
+    return '<div class="empty-state">' + art +
+      '<h3>从第一件小事开始</h3>' +
+      '<p>写下要做的事，设置一个截止时间，日序会帮你记得。只需要几分钟，就能拥有一份清晰的今天。</p>' +
+      '<div class="empty-actions">' +
+        '<button type="button" class="btn btn-primary" data-action="new-task">' + icon('plus') + '新建第一个任务</button>' +
+        '<button type="button" class="btn btn-ghost" data-action="load-demo">载入示例任务</button>' +
+      '</div>' +
+    '</div>';
+  }
+
+  /* ------------------------------------------------------------------
+     渲染：日程时间轴
+  ------------------------------------------------------------------ */
+  function buildScheduleHTML(filtered) {
+    let scoped = [];
+    let scopeTitle = '';
+
+    if (state.focusDate) {
+      const target = parseDateKey(state.focusDate);
+      scoped = filtered.filter(function (task) {
+        const date = taskDue(task);
+        return date && sameDay(date, target);
+      });
+      scopeTitle = formatMonthDay(target) + ' ' + WEEKDAYS[target.getDay()];
+    } else if (state.scheduleScope === 'today') {
+      const now = new Date();
+      scoped = filtered.filter(function (task) {
+        const date = taskDue(task);
+        return date && sameDay(date, now);
+      });
+      scopeTitle = '今天';
+    } else if (state.scheduleScope === 'week') {
+      const start = startOfWeek(new Date());
+      const end = endOfWeek(new Date());
+      scoped = filtered.filter(function (task) {
+        const date = taskDue(task);
+        return date && date >= start && date <= end;
+      });
+      scopeTitle = '本周';
+    } else {
+      const endToday = endOfDay(new Date());
+      scoped = filtered.filter(function (task) {
+        const date = taskDue(task);
+        return date && date > endToday;
+      });
+      scopeTitle = '未来';
+    }
+
+    scoped.sort(function (a, b) {
+      const aDate = taskDue(a);
+      const bDate = taskDue(b);
+      const aTime = aDate ? aDate.getTime() : Number.MAX_SAFE_INTEGER;
+      const bTime = bDate ? bDate.getTime() : Number.MAX_SAFE_INTEGER;
+      if (aTime !== bTime) return aTime - bTime;
+      if (a.completed !== b.completed) return a.completed ? 1 : -1;
+      return (PRIORITIES[a.priority] ? PRIORITIES[a.priority].order : 1) - (PRIORITIES[b.priority] ? PRIORITIES[b.priority].order : 1);
+    });
+
+    const grouped = new Map();
+    scoped.forEach(function (task) {
+      const date = taskDue(task);
+      if (!date) return;
+      const key = dateKey(date);
+      if (!grouped.has(key)) grouped.set(key, []);
+      grouped.get(key).push(task);
+    });
+
+    let html = '';
+    if (state.focusDate) {
+      const target = parseDateKey(state.focusDate);
+      html += '<div class="focus-note"><span>正在查看 ' + escapeHTML(formatMonthDay(target) + ' ' + WEEKDAYS_FULL[target.getDay()]) + ' 的安排</span><button type="button" data-action="clear-focus">清除日期筛选</button></div>';
+    }
+
+    if (!scoped.length) {
+      const empty = isFiltering() ? 'no-results' : (state.tasks.length ? 'schedule-empty' : 'no-tasks');
+      return {
+        count: 0,
+        subtitle: isFiltering() ? '筛选后没有安排' : scopeTitle + ' · 还没有安排',
+        html: html + emptyStateHTML(empty)
+      };
+    }
+
+    const today = new Date();
+    Array.from(grouped.keys()).sort().forEach(function (key) {
+      const date = parseDateKey(key);
+      const items = grouped.get(key) || [];
+      const completedCount = items.filter(function (task) { return task.completed; }).length;
+      const relative = relativeDateLabel(date);
+      const isToday = sameDay(date, today);
+      html += '<section class="day-block">' +
+        '<div class="day-head' + (isToday ? ' today' : '') + '">' +
+          '<div class="day-badge"><b>' + date.getDate() + '</b><span>' + (date.getMonth() + 1) + ' 月</span></div>' +
+          '<div class="day-copy">' +
+            '<h3>' + WEEKDAYS_FULL[date.getDay()] +
+              (isToday || relative === '明天' || relative === '昨天' || state.focusDate ? '<span class="day-relative">' + relative + '</span>' : '') +
+            '</h3>' +
+            '<p>' + items.length + ' 项安排' + (completedCount ? ' · ' + completedCount + ' 项已完成' : '') + '</p>' +
+          '</div>' +
+          '<div class="day-rule"></div>' +
+        '</div>' +
+        '<div class="timeline">' + items.map(timelineItemHTML).join('') + '</div>' +
+      '</section>';
+    });
+
+    return {
+      count: scoped.length,
+      subtitle: (isFiltering() ? '筛选后 · ' : '') + scopeTitle + ' · ' + scoped.length + ' 项安排',
+      html: html
+    };
+  }
+
+  function timelineItemHTML(task) {
+    const date = taskDue(task);
+    const overdue = isOverdue(task);
+    const category = taskCategory(task);
+    const priority = PRIORITIES[task.priority] ? task.priority : 'medium';
+    const notes = task.notes ? '<p class="tl-notes">' + escapeHTML(task.notes) + '</p>' : '';
+    const overdueBadge = overdue ? '<span class="overdue-pill">' + icon('alert') + escapeHTML(overdueText(task.due)) + '</span>' : '';
+    const reminder = task.reminder > 0
+      ? '<span class="meta-item" title="' + escapeHTML(reminderText(task.reminder)) + '">' + icon('bell') + escapeHTML(reminderText(task.reminder)) + '</span>'
+      : '';
+    return '<div class="tl-item">' +
+      '<div class="tl-time" ' + (overdue ? 'style="color:var(--danger)"' : '') + '>' +
+        '<strong>' + formatTime(date) + '</strong>' +
+        (overdue ? '已逾期' : '') +
+      '</div>' +
+      '<div class="tl-rail" aria-hidden="true"><span class="tl-dot ' + priority + (task.completed ? ' is-completed' : '') + '"></span></div>' +
+      '<div class="tl-card ' + (overdue ? 'is-overdue ' : '') + (task.completed ? 'is-completed' : '') + '">' +
+        '<div class="tl-card-head">' +
+          '<label class="task-check" title="' + (task.completed ? '撤销完成' : '标记为完成') + '">' +
+            '<input type="checkbox" class="js-task-check" data-id="' + escapeHTML(task.id) + '"' + (task.completed ? ' checked' : '') + ' aria-label="' + (task.completed ? '撤销完成' : '标记完成') + '：' + escapeHTML(task.title) + '">' +
+          '</label>' +
+          '<div class="tl-body" data-action="edit" data-id="' + escapeHTML(task.id) + '" role="button" tabindex="0" aria-label="编辑任务：' + escapeHTML(task.title) + '">' +
+            '<div class="tl-title-row">' +
+              '<span class="prio ' + priority + '">' + priorityLabel(priority) + '</span>' +
+              '<h4 class="tl-title">' + escapeHTML(task.title) + '</h4>' +
+              overdueBadge +
+            '</div>' +
+            notes +
+            '<div class="task-meta">' +
+              '<span class="cat-chip ' + categoryClass(category) + '">' + escapeHTML(category) + '</span>' +
+              reminder +
+            '</div>' +
+          '</div>' +
+          '<div class="task-actions">' +
+            '<button type="button" class="action-btn" data-action="edit" data-id="' + escapeHTML(task.id) + '" aria-label="编辑任务：' + escapeHTML(task.title) + '" title="编辑">' + icon('edit') + '</button>' +
+            '<button type="button" class="action-btn delete" data-action="delete" data-id="' + escapeHTML(task.id) + '" aria-label="删除任务：' + escapeHTML(task.title) + '" title="删除">' + icon('trash') + '</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  /* ------------------------------------------------------------------
+     渲染：月历与分类
+  ------------------------------------------------------------------ */
+  function renderCalendar() {
+    const year = state.calendarMonth.getFullYear();
+    const month = state.calendarMonth.getMonth();
+    els.calendarTitle.textContent = year + '年 ' + (month + 1) + '月';
+
+    const firstDay = new Date(year, month, 1);
+    const offset = (firstDay.getDay() + 6) % 7;
+    const gridStart = addDays(firstDay, -offset);
+    const taskMap = new Map();
+
+    state.tasks.forEach(function (task) {
+      if (task.completed) return;
+      const date = taskDue(task);
+      if (!date) return;
+      const key = dateKey(date);
+      if (!taskMap.has(key)) taskMap.set(key, []);
+      taskMap.get(key).push(task);
+    });
+
+    const today = new Date();
+    const cells = [];
+    for (let index = 0; index < 42; index += 1) {
+      const date = addDays(gridStart, index);
+      const key = dateKey(date);
+      const tasks = (taskMap.get(key) || []).slice().sort(function (a, b) {
+        return (PRIORITIES[a.priority] ? PRIORITIES[a.priority].order : 1) - (PRIORITIES[b.priority] ? PRIORITIES[b.priority].order : 1);
+      });
+      const dots = tasks.slice(0, 3).map(function (task) {
+        return '<span class="cal-dot ' + (PRIORITIES[task.priority] ? task.priority : 'medium') + '"></span>';
+      }).join('');
+      const outside = date.getMonth() !== month;
+      const isToday = sameDay(date, today);
+      const selected = state.focusDate === key;
+      const classes = ['cal-day'];
+      if (outside) classes.push('outside');
+      if (isToday) classes.push('today');
+      if (selected) classes.push('selected');
+      if (date.getDay() === 0 || date.getDay() === 6) classes.push('wknd');
+      const label = formatMonthDay(date) + ' ' + WEEKDAYS[date.getDay()] + (tasks.length ? '，' + tasks.length + ' 项任务' : '，没有任务');
+      cells.push(
+        '<button type="button" class="' + classes.join(' ') + '" data-action="calendar-date" data-date="' + key + '" aria-label="' + escapeHTML(label) + '"' + (selected ? ' aria-current="date"' : '') + '>' +
+          '<span>' + date.getDate() + '</span>' +
+          '<span class="cal-dots">' + dots + '</span>' +
+        '</button>'
+      );
+    }
+    els.calendarGrid.innerHTML = cells.join('');
+  }
+
+  function getCategoryStats() {
+    const map = new Map();
+    state.tasks.forEach(function (task) {
+      const category = taskCategory(task);
+      if (!map.has(category)) map.set(category, { name: category, total: 0, active: 0 });
+      const entry = map.get(category);
+      entry.total += 1;
+      if (!task.completed) entry.active += 1;
+    });
+    return Array.from(map.values()).sort(function (a, b) {
+      if (b.total !== a.total) return b.total - a.total;
+      return a.name.localeCompare(b.name, 'zh-CN');
+    });
+  }
+
+  function renderCategories() {
+    const categories = getCategoryStats();
+    const allActive = state.filters.category === 'all';
+    let html = '<button type="button" class="category-row' + (allActive ? ' active' : '') + '" data-action="filter-category" data-category="">' +
+      '<span class="cat-dot" style="background:var(--ink-3)"></span>' +
+      '<span class="cat-name">全部分类</span>' +
+      '<span class="cat-count">' + state.tasks.length + '</span>' +
+    '</button>';
+
+    categories.forEach(function (category) {
+      const active = state.filters.category === category.name;
+      html += '<button type="button" class="category-row' + (active ? ' active' : '') + '" data-action="filter-category" data-category="' + escapeHTML(category.name) + '">' +
+        '<span class="cat-dot ' + categoryClass(category.name) + '"></span>' +
+        '<span class="cat-name">' + escapeHTML(category.name) + '</span>' +
+        '<span class="cat-count">' + category.total + '</span>' +
+      '</button>';
+    });
+
+    if (!categories.length) {
+      html += '<p class="category-empty">添加任务后，分类会出现在这里。</p>';
+    }
+    els.categoryTotal.textContent = state.tasks.length + ' 项';
+    els.categoryList.innerHTML = html;
+  }
+
+  /* ------------------------------------------------------------------
+     交互
+  ------------------------------------------------------------------ */
+  function wireEvents() {
+    els.themeToggle.addEventListener('click', toggleTheme);
+    els.searchInput.addEventListener('input', function () {
+      state.filters.q = els.searchInput.value;
+      updateSearchClear();
+      els.resetFilters.hidden = !(isFiltering() || state.sort !== 'due');
+      renderBoard();
+    });
+    els.clearSearch.addEventListener('click', function () {
+      state.filters.q = '';
+      els.searchInput.value = '';
+      updateSearchClear();
+      els.resetFilters.hidden = !(isFiltering() || state.sort !== 'due');
+      renderBoard();
+      els.searchInput.focus();
+    });
+    els.priorityFilter.addEventListener('change', function () {
+      state.filters.priority = els.priorityFilter.value;
+      renderFilteredUi();
+    });
+    els.categoryFilter.addEventListener('change', function () {
+      state.filters.category = els.categoryFilter.value;
+      renderFilteredUi();
+    });
+    els.statusFilter.addEventListener('change', function () {
+      state.filters.status = els.statusFilter.value;
+      if (state.filters.status === 'completed') state.completedCollapsed = false;
+      renderFilteredUi();
+    });
+    els.sortSelect.addEventListener('change', function () {
+      state.sort = els.sortSelect.value;
+      renderFilteredUi();
+    });
+    els.resetFilters.addEventListener('click', resetAllFilters);
+
+    document.addEventListener('click', handleDocumentClick);
+    document.addEventListener('change', handleDocumentChange);
+    document.addEventListener('keydown', handleKeydown);
+
+    els.taskForm.addEventListener('submit', handleFormSubmit);
+    els.closeDialogBtn.addEventListener('click', closeTaskDialog);
+    els.cancelDialogBtn.addEventListener('click', closeTaskDialog);
+    els.taskDialog.addEventListener('click', function (event) {
+      if (event.target === els.taskDialog) closeTaskDialog();
+    });
+    els.taskDialog.addEventListener('close', function () {
+      document.body.classList.remove('modal-open');
+      state.editingId = null;
+      window.setTimeout(function () {
+        if (!els.taskDialog.open) checkReminders();
+      }, 200);
+    });
+    els.reminderSelect.addEventListener('change', function () {
+      els.customReminderMinutes.classList.remove('invalid');
+      els.reminderError.hidden = true;
+      updateReminderUi();
+    });
+    els.customReminderMinutes.addEventListener('input', function () {
+      els.customReminderMinutes.classList.remove('invalid');
+      els.reminderError.hidden = true;
+      updateReminderHint();
+    });
+    els.taskCategory.addEventListener('input', updateCategoryQuickState);
+    els.taskTitle.addEventListener('input', function () {
+      clearFieldError(els.taskTitle, els.titleError);
+    });
+    els.taskDate.addEventListener('input', function () {
+      clearFieldError(els.taskDate, els.dueError);
+      els.taskDate.classList.remove('invalid');
+      els.taskTime.classList.remove('invalid');
+    });
+    els.taskTime.addEventListener('input', function () {
+      clearFieldError(els.taskTime, els.dueError);
+      els.taskDate.classList.remove('invalid');
+      els.taskTime.classList.remove('invalid');
+    });
+  }
+
+  function renderFilteredUi() {
+    syncToolbar();
+    renderBoard();
+    renderCategories();
+  }
+
+  function resetAllFilters() {
+    state.filters = { q: '', priority: 'all', category: 'all', status: 'all' };
+    state.sort = 'due';
+    syncToolbar();
+    renderBoard();
+    renderCategories();
+  }
+
+  function handleDocumentClick(event) {
+    const quickCategory = event.target.closest('[data-cat-quick]');
+    if (quickCategory) {
+      els.taskCategory.value = quickCategory.dataset.catQuick;
+      updateCategoryQuickState();
+      return;
+    }
+
+    const viewButton = event.target.closest('[data-view]');
+    if (viewButton && viewButton.classList.contains('nav-tab')) {
+      setView(viewButton.dataset.view);
+      return;
+    }
+
+    const scopeButton = event.target.closest('[data-scope]');
+    if (scopeButton) {
+      state.view = 'schedule';
+      state.focusDate = null;
+      state.scheduleScope = scopeButton.dataset.scope;
+      writeStored(VIEW_KEY, 'schedule');
+      renderAll();
+      return;
+    }
+
+    const shiftButton = event.target.closest('[data-cal-shift]');
+    if (shiftButton) {
+      const shift = Number(shiftButton.dataset.calShift) || 0;
+      state.calendarMonth = new Date(state.calendarMonth.getFullYear(), state.calendarMonth.getMonth() + shift, 1);
+      renderCalendar();
+      return;
+    }
+
+    const actionElement = event.target.closest('[data-action]');
+    if (!actionElement) return;
+    const action = actionElement.dataset.action;
+    const id = actionElement.dataset.id;
+
+    switch (action) {
+      case 'go-home':
+        event.preventDefault();
+        setView('tasks');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        break;
+      case 'new-task':
+        openTaskDialog();
+        break;
+      case 'edit':
+        if (id) openTaskDialog(id);
+        break;
+      case 'delete':
+        if (id) deleteTask(id);
+        break;
+      case 'toggle-completed':
+        state.completedCollapsed = !state.completedCollapsed;
+        renderBoard();
+        break;
+      case 'clear-completed':
+        clearCompletedTasks();
+        break;
+      case 'reset-filters':
+        resetAllFilters();
+        break;
+      case 'load-demo':
+        loadDemoTasks();
+        break;
+      case 'calendar-date':
+        selectCalendarDate(actionElement.dataset.date);
+        break;
+      case 'calendar-today':
+        goToToday();
+        break;
+      case 'clear-focus':
+        state.focusDate = null;
+        renderAll();
+        break;
+      case 'filter-category':
+        state.filters.category = actionElement.dataset.category || 'all';
+        renderFilteredUi();
+        break;
+      default:
+        break;
+    }
+  }
+
+  function handleDocumentChange(event) {
+    if (event.target.matches('.js-task-check')) {
+      setTaskCompletion(event.target.dataset.id, event.target.checked);
+    }
+  }
+
+  function handleKeydown(event) {
+    if (els.taskDialog.open) return;
+    const target = event.target;
+    const typing = target && (target.matches('input, textarea, select, [contenteditable="true"]'));
+
+    if (!typing && (event.key === 'n' || event.key === 'N') && !event.metaKey && !event.ctrlKey && !event.altKey) {
+      event.preventDefault();
+      openTaskDialog();
+      return;
+    }
+    if (!typing && event.key === '/' && !event.metaKey && !event.ctrlKey && !event.altKey) {
+      event.preventDefault();
+      els.searchInput.focus();
+      els.searchInput.select();
+      return;
+    }
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault();
+      els.searchInput.focus();
+      els.searchInput.select();
+      return;
+    }
+    if (event.key === 'Escape' && state.focusDate && !typing) {
+      state.focusDate = null;
+      renderAll();
+      return;
+    }
+    if ((event.key === 'Enter' || event.key === ' ') && target && target.matches('[role="button"][data-action="edit"]')) {
+      event.preventDefault();
+      openTaskDialog(target.dataset.id);
+    }
+  }
+
+  function setView(view) {
+    state.view = view === 'schedule' ? 'schedule' : 'tasks';
+    state.focusDate = null;
+    writeStored(VIEW_KEY, state.view);
+    renderAll();
+  }
+
+  function selectCalendarDate(key) {
+    if (!key) return;
+    const date = parseDateKey(key);
+    state.view = 'schedule';
+    state.focusDate = key;
+    state.calendarMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+    writeStored(VIEW_KEY, 'schedule');
+    renderAll();
+    if (window.matchMedia('(max-width: 960px)').matches) {
+      window.requestAnimationFrame(function () {
+        $('.board').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+  }
+
+  function goToToday() {
+    state.view = 'schedule';
+    state.focusDate = null;
+    state.scheduleScope = 'today';
+    state.calendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    writeStored(VIEW_KEY, 'schedule');
+    renderAll();
+  }
+
+  function refreshTimeSensitiveUi() {
+    if (els.taskDialog.open) return;
+    renderHeader();
+    renderStats();
+    renderBoard();
+    renderCalendar();
+  }
+
+  function handleStorageSync(event) {
+    if (event.key === STORAGE_KEY) {
+      state.tasks = loadTasks();
+      categoryFilterSignature = '';
+      renderAll();
+      showToast({
+        type: 'info',
+        title: '数据已同步',
+        message: '另一个标签页更新了任务。',
+        duration: 3500
+      });
+    } else if (event.key === THEME_KEY && event.newValue) {
+      state.theme = event.newValue === 'dark' ? 'dark' : 'light';
+      updateThemeUi();
+    }
+  }
+
+  /* ------------------------------------------------------------------
+     任务操作
+  ------------------------------------------------------------------ */
+  function setTaskCompletion(id, completed, options) {
+    const quiet = options && options.quiet;
+    const task = state.tasks.find(function (item) { return item.id === id; });
+    if (!task) return;
+    task.completed = Boolean(completed);
+    task.completedAt = completed ? new Date().toISOString() : null;
+    task.updatedAt = new Date().toISOString();
+    saveTasks();
+    renderAll();
+
+    if (completed && !quiet) {
+      showToast({
+        type: 'success',
+        title: '任务已完成',
+        message: task.title,
+        actionLabel: '撤销',
+        duration: 6000,
+        onAction: function () {
+          setTaskCompletion(task.id, false, { quiet: true });
+          showToast({ type: 'info', title: '已撤销完成', message: task.title, duration: 3000 });
+        }
+      });
+    } else if (!completed && !quiet) {
+      showToast({ type: 'info', title: '已恢复为待办', message: task.title, duration: 3000 });
+    }
+  }
+
+  function deleteTask(id) {
+    const index = state.tasks.findIndex(function (task) { return task.id === id; });
+    if (index < 0) return;
+    const removed = state.tasks.splice(index, 1)[0];
+    saveTasks();
+    renderAll();
+    showToast({
+      type: 'success',
+      title: '任务已删除',
+      message: removed.title,
+      actionLabel: '撤销',
+      duration: 7000,
+      onAction: function () {
+        if (!state.tasks.some(function (task) { return task.id === removed.id; })) {
+          state.tasks.splice(Math.min(index, state.tasks.length), 0, removed);
+          saveTasks();
+          renderAll();
+          showToast({ type: 'info', title: '任务已恢复', message: removed.title, duration: 3000 });
+        }
+      }
+    });
+  }
+
+  function clearCompletedTasks() {
+    const completed = state.tasks.filter(function (task) { return task.completed; });
+    if (!completed.length) return;
+    const snapshot = completed.map(function (task) {
+      return { task: task, index: state.tasks.findIndex(function (item) { return item.id === task.id; }) };
+    });
+    state.tasks = state.tasks.filter(function (task) { return !task.completed; });
+    saveTasks();
+    renderAll();
+    showToast({
+      type: 'success',
+      title: '已清理已完成任务',
+      message: '共 ' + completed.length + ' 项，本次操作可以撤销。',
+      actionLabel: '撤销',
+      duration: 8000,
+      onAction: function (){
+        snapshot.sort(function (a, b) { return a.index - b.index; }).forEach(function (entry) {
+          if (!state.tasks.some(function (task) { return task.id === entry.task.id; })) {
+            state.tasks.splice(Math.min(entry.index, state.tasks.length), 0, entry.task);
+          }
+        });
+        saveTasks();
+        renderAll();
+        showToast({ type: 'info', title: '已恢复已完成任务', message: '恢复了 ' + completed.length + ' 项任务。', duration: 3000 });
+      }
+    });
+  }
+
+  function loadDemoTasks() {
+    if (state.tasks.length) return;
+    const now = new Date();
+    function after(minutes) {
+      const date = new Date(now.getTime() + (minutes * 60000));
+      date.setSeconds(0, 0);
+      return date.toISOString();
+    }
+    function at(dayOffset, hours, minutes) {
+      const date = addDays(startOfDay(now), dayOffset);
+      date.setHours(hours, minutes || 0, 0, 0);
+      return date.toISOString();
+    }
+    const createdAt = new Date(now.getTime() - 3600000).toISOString();
+    const demo = [
+      {
+        id: uid(), title: '提交课程设计初稿', notes: '先完成核心功能，再补上说明文档和演示截图。',
+        due: after(150), priority: 'high', category: '学习', reminder: 30, completed: false,
+        completedAt: null, createdAt: createdAt, updatedAt: createdAt, reminderNotified: false
+      },
+      {
+        id: uid(), title: '和组员确认演示分工', notes: '把每个人的讲解段落和时长对齐一下。',
+        due: after(330), priority: 'medium', category: '工作', reminder: 60, completed: false,
+        completedAt: null, createdAt: createdAt, updatedAt: createdAt, reminderNotified: false
+      },
+      {
+        id: uid(), title: '整理下周的阅读清单', notes: '从收藏夹里挑三篇真正想读的文章。',
+        due: at(1, 10, 30), priority: 'medium', category: '学习', reminder: 60, completed: false,
+        completedAt: null, createdAt: createdAt, updatedAt: createdAt, reminderNotified: false
+      },
+      {
+        id: uid(), title: '去操场慢跑 30 分钟', notes: '不追配速，舒服地跑完就好。',
+        due: at(1, 19, 0), priority: 'low', category: '健康', reminder: 60, completed: false,
+        completedAt: null, createdAt: createdAt, updatedAt: createdAt, reminderNotified: false
+      },
+      {
+        id: uid(), title: '给家里打个电话', notes: '问问最近怎么样，也说说自己的近况。',
+        due: at(4, 20, 0), priority: 'low', category: '生活', reminder: 0, completed: false,
+        completedAt: null, createdAt: createdAt, updatedAt: createdAt, reminderNotified: false
+      },
+      {
+        id: uid(), title: '回复导师的邮件', notes: '确认下周讨论的时间和准备材料。',
+        due: at(-1, 18, 0), priority: 'high', category: '工作', reminder: 0, completed: false,
+        completedAt: null, createdAt: createdAt, updatedAt: createdAt, reminderNotified: true
+      },
+      {
+        id: uid(), title: '完成英语听力练习', notes: '今天的精听任务已经完成。',
+        due: at(0, 9, 30), priority: 'medium', category: '学习', reminder: 0, completed: true,
+        completedAt: new Date(now.getTime() - (2 * 3600000)).toISOString(), createdAt: createdAt, updatedAt: createdAt, reminderNotified: true
+      }
+    ];
+    state.tasks = demo.map(normalizeTask).filter(Boolean);
+    saveTasks();
+    renderAll();
+    showToast({
+      type: 'success',
+      title: '示例任务已就绪',
+      message: '可以随意编辑或删除它们，开始属于你的安排。',
+      duration: 4500
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     新建 / 编辑弹窗
+  ------------------------------------------------------------------ */
+  function defaultDueDate() {
+    const now = new Date();
+    const date = new Date(now.getTime());
+    date.setMinutes(0, 0, 0);
+    date.setHours(date.getHours() + 2);
+    if (date.getHours() >= 22 || date.getHours() < 7) {
+      const tomorrow = addDays(startOfDay(now), 1);
+      tomorrow.setHours(9, 0, 0, 0);
+      return tomorrow;
+    }
+    return date;
+  }
+
+  function openTaskDialog(id) {
+    const task = id ? state.tasks.find(function (item) { return item.id === id; }) : null;
+    state.editingId = task ? task.id : null;
+    els.taskForm.reset();
+    clearFormErrors();
+    updateCategoryFormOptions();
+
+    if (task) {
+      const date = taskDue(task);
+      els.dialogEyebrow.textContent = 'EDIT TASK';
+      els.dialogTitle.textContent = '编辑任务';
+      els.saveTaskBtn.innerHTML = icon('check') + '<span>保存修改</span>';
+      els.taskTitle.value = task.title;
+      els.taskNotes.value = task.notes || '';
+      if (date) {
+        els.taskDate.value = toDateInputValue(date);
+        els.taskTime.value = toTimeInputValue(date);
+      } else {
+        const fallback = defaultDueDate();
+        els.taskDate.value = toDateInputValue(fallback);
+        els.taskTime.value = toTimeInputValue(fallback);
+      }
+      setPriorityValue(task.priority || 'medium');
+      els.taskCategory.value = taskCategory(task) === '未分类' ? '' : taskCategory(task);
+      setReminderValue(task.reminder || 0);
+    } else {
+      const due = defaultDueDate();
+      const lastCategory = readStored(LAST_CATEGORY_KEY) || '';
+      els.dialogEyebrow.textContent = 'NEW TASK';
+      els.dialogTitle.textContent = '新建任务';
+      els.saveTaskBtn.innerHTML = icon('check') + '<span>创建任务</span>';
+      els.taskTitle.value = '';
+      els.taskNotes.value = '';
+      els.taskDate.value = toDateInputValue(due);
+      els.taskTime.value = toTimeInputValue(due);
+      setPriorityValue('medium');
+      els.taskCategory.value = lastCategory;
+      setReminderValue(30);
+    }
+
+    updateReminderUi();
+    updateCategoryQuickState();
+    if (!els.taskDialog.open) {
+      els.taskDialog.showModal();
+    }
+    document.body.classList.add('modal-open');
+    window.requestAnimationFrame(function () {
+      els.taskTitle.focus();
+      els.taskTitle.select();
+    });
+  }
+
+  function closeTaskDialog() {
+    if (els.taskDialog.open) els.taskDialog.close();
+  }
+
+  function setPriorityValue(priority) {
+    const radio = els.taskForm.querySelector('input[name="priority"][value="' + priority + '"]');
+    if (radio) radio.checked = true;
+  }
+
+  function setReminderValue(minutes) {
+    const value = Number(minutes) || 0;
+    const preset = Array.from(els.reminderSelect.options).map(function (option) { return option.value; });
+    if (value === 0) {
+      els.reminderSelect.value = '0';
+    } else if (preset.includes(String(value))) {
+      els.reminderSelect.value = String(value);
+    } else {
+      els.reminderSelect.value = 'custom';
+      els.customReminderMinutes.value = String(value);
+    }
+  }
+
+  function updateReminderUi() {
+    const isCustom = els.reminderSelect.value === 'custom';
+    els.customReminderRow.hidden = !isCustom;
+    if (isCustom && !els.customReminderMinutes.value) {
+      els.customReminderMinutes.value = '30';
+    }
+    updateReminderHint();
+  }
+
+  function updateReminderHint() {
+    const isCustom = els.reminderSelect.value === 'custom';
+    let minutes = Number(els.reminderSelect.value);
+    if (isCustom) minutes = Number(els.customReminderMinutes.value);
+    if (!Number.isFinite(minutes) || minutes <= 0) {
+      els.reminderHint.textContent = '不会发送提醒';
+    } else {
+      els.reminderHint.textContent = '将在截止前 ' + reminderOffsetText(minutes) + ' 提醒你';
+    }
+  }
+
+  function updateCategoryFormOptions() {
+    const categories = knownCategories();
+    els.categoryOptions.innerHTML = categories.map(function (category) {
+      return '<option value="' + escapeHTML(category) + '"></option>';
+    }).join('');
+    const quickCategories = categories.slice(0, 8);
+    els.categoryQuick.innerHTML = quickCategories.map(function (category) {
+      return '<button type="button" class="cat-quick" data-cat-quick="' + escapeHTML(category) + '">' + escapeHTML(category) + '</button>';
+    }).join('');
+  }
+
+  function updateCategoryQuickState() {
+    $$('.cat-quick', els.categoryQuick).forEach(function (button) {
+      button.classList.toggle('active', button.dataset.catQuick === els.taskCategory.value.trim());
+    });
+  }
+
+  function clearFieldError(input, errorElement) {
+    if (errorElement) errorElement.hidden = true;
+    if (input) input.classList.remove('invalid');
+  }
+
+  function clearFormErrors() {
+    els.titleError.hidden = true;
+    els.dueError.hidden = true;
+    els.reminderError.hidden = true;
+    els.taskTitle.classList.remove('invalid');
+    els.taskDate.classList.remove('invalid');
+    els.taskTime.classList.remove('invalid');
+    els.customReminderMinutes.classList.remove('invalid');
+  }
+
+  function handleFormSubmit(event) {
+    event.preventDefault();
+    clearFormErrors();
+
+    const title = els.taskTitle.value.trim();
+    if (!title) {
+      els.titleError.hidden = false;
+      els.taskTitle.classList.add('invalid');
+      els.taskTitle.focus();
+      return;
+    }
+
+    const dateValue = els.taskDate.value;
+    const timeValue = els.taskTime.value;
+    if (!dateValue || !timeValue) {
+      els.dueError.hidden = false;
+      if (!dateValue) els.taskDate.classList.add('invalid');
+      if (!timeValue) els.taskTime.classList.add('invalid');
+      (!dateValue ? els.taskDate : els.taskTime).focus();
+      return;
+    }
+    const dueDate = new Date(dateValue + 'T' + timeValue + ':00');
+    if (isNaN(dueDate.getTime())) {
+      els.dueError.hidden = false;
+      els.taskDate.classList.add('invalid');
+      els.taskTime.classList.add('invalid');
+      els.taskDate.focus();
+      return;
+    }
+
+    let reminder = 0;
+    if (els.reminderSelect.value === 'custom') {
+      const custom = Number(els.customReminderMinutes.value);
+      if (!Number.isFinite(custom) || custom <= 0 || custom > 43200) {
+        els.customReminderMinutes.classList.add('invalid');
+        els.reminderError.hidden = false;
+        els.customReminderMinutes.focus();
+        return;
+      }
+      reminder = Math.round(custom);
+    } else {
+      reminder = Number(els.reminderSelect.value) || 0;
+    }
+
+    const category = els.taskCategory.value.trim().slice(0, 24) || '未分类';
+    const priorityInput = els.taskForm.querySelector('input[name="priority"]:checked');
+    const priority = priorityInput ? priorityInput.value : 'medium';
+    const nowIso = new Date().toISOString();
+    const notes = els.taskNotes.value.trim().slice(0, 800);
+    const dueIso = dueDate.toISOString();
+
+    if (state.editingId) {
+      const task = state.tasks.find(function (item) { return item.id === state.editingId; });
+      if (task) {
+        const dueChanged = task.due !== dueIso;
+        const reminderChanged = task.reminder !== reminder;
+        task.title = title;
+        task.notes = notes;
+        task.due = dueIso;
+        task.priority = priority;
+        task.category = category;
+        task.reminder = reminder;
+        task.updatedAt = nowIso;
+        if (dueChanged || reminderChanged) task.reminderNotified = false;
+      }
+      writeStored(LAST_CATEGORY_KEY, category === '未分类' ? '' : category);
+      saveTasks();
+      closeTaskDialog();
+      renderAll();
+      showToast({
+        type: 'success',
+        title: '修改已保存',
+        message: title,
+        duration: 3000
+      });
+    } else {
+      const task = {
+        id: uid(),
+        title: title,
+        notes: notes,
+        due: dueIso,
+        priority: priority,
+        category: category,
+        reminder: reminder,
+        completed: false,
+        completedAt: null,
+        createdAt: nowIso,
+        updatedAt: nowIso,
+        reminderNotified: false
+      };
+      state.tasks.push(task);
+      writeStored(LAST_CATEGORY_KEY, category === '未分类' ? '' : category);
+      saveTasks();
+      closeTaskDialog();
+      renderAll();
+      showToast({
+        type: 'success',
+        title: '任务已创建',
+        message: formatDueLabel(task.due) + ' · ' + title,
+        duration: 3800
+      });
+    }
+    window.setTimeout(checkReminders, 100);
+  }
+
+  /* ------------------------------------------------------------------
+     提醒
+  ------------------------------------------------------------------ */
+  function checkReminders() {
+    const now = Date.now();
+    const dueForNotice = [];
+    let changed = false;
+
+    state.tasks.forEach(function (task) {
+      if (task.completed || !task.reminder || !task.due || task.reminderNotified) return;
+      const due = taskDue(task);
+      if (!due) return;
+      const dueTime = due.getTime();
+      const noticeStart = dueTime - (task.reminder * 60000);
+      const graceEnd = dueTime + (5 * 60000);
+
+      if (now > graceEnd) {
+        task.reminderNotified = true;
+        changed = true;
+        return;
+      }
+      if (now >= noticeStart) {
+        task.reminderNotified = true;
+        changed = true;
+        dueForNotice.push(task);
+      }
+    });
+
+    if (changed) saveTasks();
+    if (!dueForNotice.length) return;
+
+    dueForNotice.slice(0, 3).forEach(function (task) {
+      const due = taskDue(task);
+      const left = due.getTime() - now;
+      showToast({
+        type: 'reminder',
+        title: left > 0 ? '任务将在 ' + remainingText(left) + '后截止' : '任务已到截止时间',
+        message: task.title + (task.reminder ? ' · 已设置' + reminderText(task.reminder) : ''),
+        actionLabel: '查看',
+        duration: 14000,
+        onAction: function () { openTaskDialog(task.id); }
+      });
+    });
+    if (dueForNotice.length > 3) {
+      showToast({
+        type: 'reminder',
+        title: '还有多项任务需要留意',
+        message: '另外 ' + (dueForNotice.length - 3) + ' 项任务也即将截止。',
+        actionLabel: '去任务列表',
+        duration: 9000,
+        onAction: function () { setView('tasks'); }
+      });
+    }
+  }
+
+  /* ------------------------------------------------------------------
+     Toast
+  ------------------------------------------------------------------ */
+  function showToast(options) {
+    const settings = options || {};
+    const type = settings.type || 'success';
+    const id = ++toastSequence;
+    const toast = document.createElement('div');
+    toast.className = 'toast ' + type;
+    toast.dataset.toastId = String(id);
+    const iconName = type === 'error' ? 'alert' : (type === 'reminder' ? 'bell' : (type === 'info' ? 'sparkle' : 'check-circle'));
+    toast.innerHTML =
+      '<span class="toast-icon">' + icon(iconName) + '</span>' +
+      '<div class="toast-content">' +
+        '<p class="toast-title">' + escapeHTML(settings.title || '') + '</p>' +
+        (settings.message ? '<p class="toast-message">' + escapeHTML(settings.message) + '</p>' : '') +
+      '</div>' +
+      '<div class="toast-actions">' +
+        (settings.actionLabel ? '<button type="button" class="toast-action">' + escapeHTML(settings.actionLabel) + '</button>' : '') +
+        '<button type="button" class="toast-close" aria-label="关闭通知">' + icon('x') + '</button>' +
+      '</div>';
+
+    const closeButton = $('.toast-close', toast);
+    const actionButton = $('.toast-action', toast);
+    let timer = null;
+
+    function remove() {
+      if (!toast.isConnected || toast.classList.contains('leaving')) return;
+      if (timer) window.clearTimeout(timer);
+      toast.classList.add('leaving');
+      window.setTimeout(function () { toast.remove(); }, 190);
+    }
+
+    function startTimer() {
+      if (timer) window.clearTimeout(timer);
+      timer = window.setTimeout(remove, settings.duration || 5000);
+    }
+
+    closeButton.addEventListener('click', remove);
+    if (actionButton) {
+      actionButton.addEventListener('click', function () {
+        remove();
+        if (typeof settings.onAction === 'function') settings.onAction();
+      });
+    }
+    toast.addEventListener('mouseenter', function () {
+      if (timer) window.clearTimeout(timer);
+    });
+    toast.addEventListener('mouseleave', startTimer);
+
+    els.toastRegion.appendChild(toast);
+    while (els.toastRegion.children.length > 4) {
+      els.toastRegion.firstElementChild.remove();
+    }
+    els.liveRegion.textContent = (settings.title || '') + (settings.message ? '，' + settings.message : '');
+    startTimer();
+    return toast;
+  }
+
+})();
+</script>
+</body>
+</html>
