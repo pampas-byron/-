@@ -1,13 +1,13 @@
 /* 日序 · 离线缓存 */
-const CACHE_NAME = 'rishi-shell-v2';
+const CACHE_NAME = 'rishi-shell-v3';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.json',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/icon-maskable-512.png',
-  './icons/apple-touch-icon.png'
+  './icon-192.png',
+  './icon-512.png',
+  './icon-maskable-512.png',
+  './apple-touch-icon.png'
 ];
 
 self.addEventListener('install', function (event) {
